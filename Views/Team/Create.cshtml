@@ -1,0 +1,29 @@
+@{
+    ViewData["Title"] = "Create Team";
+}
+
+<h2>Create Team</h2>
+
+<form asp-action="Create" method="post">
+    <input type="hidden" name="tournamentId" value="@ViewBag.TournamentId" />
+
+    <div class="form-group">
+        <label>Team Name</label>
+        <input name="name" class="form-control" required />
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-primary">
+        Create Team
+    </button>
+</form>
+
+<br />
+
+<a asp-controller="Tournament"
+   asp-action="Details"
+   asp-route-id="@ViewBag.TournamentId"
+   class="btn btn-secondary">
+   Cancel
+</a>

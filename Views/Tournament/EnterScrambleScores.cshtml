@@ -1,0 +1,158 @@
+@model FairwayManager.Models.Tournament
+
+@{
+    ViewData["Title"] = "Enter Scramble Scores";
+
+    var allScores = (List<FairwayManager.Models.TeamScore>)ViewBag.TeamScores;
+
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+    int currentRound = ViewBag.CurrentRound ?? 1;
+}
+
+<h2>Enter Scramble Scores - @Model.Name</h2>
+
+<div style="display:flex; gap:10px; margin-bottom:20px;">
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-light">
+        ← Back to Tournament
+    </a>
+
+    <a asp-action="Leaderboard" asp-route-id="@Model.Id" class="btn btn-success">
+        🏆 View Leaderboard
+    </a>
+</div>
+
+<div class="mb-3">
+    <label><strong>Select Round:</strong></label>
+    <select id="roundSelect" class="form-control" style="width:200px;">
+        @for (int r = 1; r <= Model.NumberOfRounds; r++)
+        {
+            <option value="@r" selected="@(r == currentRound)">
+                Round @r
+            </option>
+        }
+    </select>
+</div>
+
+@foreach (var tt in Model.TournamentTeams)
+{
+    var isOnTeam = tt.Team.PlayerTeams.Any(pt => pt.Player.UserId == currentUserId);
+    if (!isOnTeam)
+    {
+        continue;
+    }
+
+    var teamScores = allScores?
+        .Where(s => s.TeamId == tt.Team.Id && s.RoundNumber == currentRound)
+        .ToList() ?? new List<FairwayManager.Models.TeamScore>();
+
+    int total = teamScores.Sum(s => s.Strokes);
+    int holesPlayed = teamScores.Count;
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <strong>@tt.Team.Name</strong>
+        </div>
+
+        <div class="card-body">
+
+            <div class="mb-3">
+                <h5 id="team-total-@tt.Team.Id">Total: @total | Thru @holesPlayed</h5>
+            </div>
+
+            <div class="row">
+                @for (int i = 1; i <= Model.HoleCount; i++)
+                {
+                    var saved = teamScores.FirstOrDefault(s => s.HoleNumber == i);
+
+                    <div class="col-2 mb-2 hole-container"
+                         data-team="@tt.Team.Id"
+                         data-hole="@i">
+
+                        <label>Hole @i</label>
+
+                        <input type="number"
+                               class="form-control scramble-input"
+                               value="@(saved != null ? saved.Strokes : "")"
+                               min="1" />
+
+                        <button type="button"
+                                class="btn btn-sm btn-primary mt-1 save-scramble-btn">
+                            Save
+                        </button>
+                    </div>
+                }
+            </div>
+
+        </div>
+    </div>
+}
+
+@section Scripts {
+<script>
+
+// ✅ ROUND SWITCH (clean redirect)
+document.getElementById("roundSelect").addEventListener("change", function () {
+    const round = this.value;
+    const tournamentId = @Model.Id;
+
+    window.location.href = `/Tournament/EnterScrambleScores/${tournamentId}?round=${round}`;
+});
+
+
+// ✅ SAVE HOLE (NO REFRESH)
+document.querySelectorAll(".save-scramble-btn").forEach(button => {
+    button.addEventListener("click", function () {
+
+        const container = this.closest(".hole-container");
+
+        const teamId = container.dataset.team;
+        const holeNumber = container.dataset.hole;
+        const roundNumber = document.getElementById("roundSelect").value;
+
+        const input = container.querySelector("input");
+        const strokes = input.value;
+
+        fetch('/Tournament/SaveScrambleHole', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: new URLSearchParams({
+                tournamentId: @Model.Id,
+                teamId: teamId,
+                holeNumber: holeNumber,
+                strokes: strokes,
+                roundNumber: roundNumber
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            input.style.border = "2px solid limegreen";
+            updateTeamTotal(teamId);
+        });
+    });
+});
+
+
+// ✅ LIVE TOTAL UPDATE (matches other modes)
+function updateTeamTotal(teamId) {
+
+    const inputs = document.querySelectorAll(`.hole-container[data-team='${teamId}'] input`);
+
+    let total = 0;
+    let count = 0;
+
+    inputs.forEach(input => {
+        if (input.value) {
+            total += parseInt(input.value);
+            count++;
+        }
+    });
+
+    const totalDisplay = document.getElementById(`team-total-${teamId}`);
+    totalDisplay.innerText = `Total: ${total} | Thru ${count}`;
+}
+
+</script>
+}

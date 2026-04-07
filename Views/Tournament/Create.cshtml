@@ -1,0 +1,104 @@
+@model FairwayManager.Models.Tournament
+
+@{
+    ViewData["Title"] = "Create Tournament";
+}
+
+<h2>Create Tournament</h2>
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Name"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <input asp-for="Description" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="CourseName"></label>
+        <input asp-for="CourseName" class="form-control" />
+        <span asp-validation-for="CourseName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Date"></label>
+        <input asp-for="Date" type="date" class="form-control" />
+        <span asp-validation-for="Date" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="HoleCount"></label>
+        <select asp-for="HoleCount" class="form-control">
+            <option value="9">9</option>
+            <option value="18">18</option>
+        </select>
+        <span asp-validation-for="HoleCount" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label for="NumberOfRounds">Number of Rounds</label>
+        <select asp-for="NumberOfRounds" class="form-control">
+            <option value="1">1 Round</option>
+            <option value="2">2 Rounds</option>
+            <option value="3">3 Rounds</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label>Event Type</label>
+        <select asp-for="IsTeamBased" class="form-control" id="eventTypeDropdown">
+            <option value="false">Individual Event</option>
+            <option value="true">Team Event</option>
+        </select>
+    </div>
+
+    <!-- Scoring Type Section -->
+    <div class="form-group" id="scoringTypeSection">
+        <label asp-for="ScoringType"></label>
+        <select asp-for="ScoringType" class="form-control">
+            <option value="">-- Select Scoring Type --</option>
+            <option value="StrokePlay">Stroke Play</option>
+            <option value="BestBall">Best Ball</option>
+            <option value="Scramble">Scramble</option>
+        </select>
+        <span asp-validation-for="ScoringType" class="text-danger"></span>
+    </div>
+
+    <br />
+    <button type="submit" class="btn btn-primary">Create Tournament</button>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const eventType = document.getElementById("eventTypeDropdown");
+        const scoringSection = document.getElementById("scoringTypeSection");
+
+        function toggleScoring() {
+
+            if (eventType.value === "true") {
+                // Team event
+                scoringSection.style.display = "block";
+            } else {
+                // Individual event
+                scoringSection.style.display = "none";
+            }
+
+        }
+
+        toggleScoring();
+
+        eventType.addEventListener("change", toggleScoring);
+
+    });
+    </script>
+}

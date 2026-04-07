@@ -1,0 +1,68 @@
+@model IEnumerable<FairwayManager.Models.Tournament>
+
+<div class="tournament-page">
+
+    <!-- HEADER -->
+    <div class="tournament-header">
+        <h1>Tournaments</h1>
+        <a asp-action="Create" class="btn btn-gold">Create New Tournament</a>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="search-container">
+        <input type="text" id="searchInput" placeholder="Search tournaments..." />
+    </div>
+
+    <!-- GRID -->
+    <div class="tournament-grid" id="tournamentGrid">
+        @foreach (var t in Model)
+        {
+            <div class="tournament-card" data-name="@t.Name.ToLower()">
+
+                <div class="card-header">
+                    <h2>@t.Name</h2>
+                    <span class="status-badge @t.Status.ToLower()">
+                        @t.Status
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <p class="date">
+                        @t.Date.ToString("MMMM dd, yyyy")
+                    </p>
+
+                    <p class="meta">
+                        @t.PlayerCount players
+                    </p>
+                </div>
+
+                <div class="card-footer">
+                    <a asp-action="Details" asp-route-id="@t.Id" class="btn btn-primary">
+                        View Tournament
+                    </a>
+                </div>
+
+            </div>
+        }
+    </div>
+
+</div>
+
+<script>
+    const searchInput = document.getElementById("searchInput");
+    const cards = document.querySelectorAll(".tournament-card");
+
+    searchInput.addEventListener("keyup", function () {
+        const value = this.value.toLowerCase();
+
+        cards.forEach(card => {
+            const name = card.getAttribute("data-name");
+
+            if (name.includes(value)) {
+                card.style.display = "block";
+            } else {
+                card.style.display = "none";
+            }
+        });
+    });
+</script>

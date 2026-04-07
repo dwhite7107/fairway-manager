@@ -1,0 +1,54 @@
+@model List<dynamic>
+
+@{
+    ViewData["Title"] = "Leaderboard";
+}
+
+<div class="leaderboard-container">
+
+    <h2 class="leaderboard-title">Leaderboard - @ViewBag.TournamentName</h2>
+
+    <!-- 🔥 NAV BUTTONS (RIGHT UNDER TITLE) -->
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+
+        <a asp-action="Details"
+           asp-route-id="@ViewContext.RouteData.Values["id"]"
+           class="btn btn-outline-light">
+            ← Back to Tournament
+        </a>
+
+        <a asp-action="EnterScores"
+           asp-route-id="@ViewContext.RouteData.Values["id"]"
+           class="btn btn-primary">
+            ✏️ Enter Scores
+        </a>
+
+    </div>
+
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Rank</th>
+                <th>Player / Team</th>
+                <th>Thru</th>
+                <th>Total</th>
+                <th>To Par</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td class="rank">@item.Rank</td>
+                    <td class="player">@item.Name</td>
+                    <td>@item.Thru</td>
+                    <td>@item.Total</td>
+                    <td class="to-par @(item.ToPar < 0 ? "under" : item.ToPar > 0 ? "over" : "even")">
+                        @(item.ToPar == 0 ? "E" : item.ToPar > 0 ? "+" + item.ToPar : item.ToPar.ToString())
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

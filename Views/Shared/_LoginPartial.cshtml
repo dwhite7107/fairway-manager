@@ -1,0 +1,31 @@
+@using Microsoft.AspNetCore.Identity
+@using FairwayManager.Data
+@using FairwayManager.Models
+
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext _context
+
+@if (SignInManager.IsSignedIn(User))
+{
+    var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var player = _context.Players.FirstOrDefault(p => p.UserId == userId);
+    var displayName = player?.Name ?? UserManager.GetUserName(User);
+
+    <span class="nav-user">
+        Hello @displayName!
+    </span>
+
+    <form asp-area="Identity" asp-page="/Account/Logout"
+          asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })"
+          style="display:inline;">
+        <button type="submit" class="btn-link-clean">
+            Logout
+        </button>
+    </form>
+}
+else
+{
+    <a class="nav-link" asp-area="Identity" asp-page="/Account/Register">Register</a>
+    <a class="nav-link" asp-area="Identity" asp-page="/Account/Login">Login</a>
+}

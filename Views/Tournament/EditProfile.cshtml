@@ -1,0 +1,51 @@
+@model FairwayManager.Models.Player
+
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="auth-page">
+
+    <h2 class="text-white">Edit Profile</h2>
+    <hr />
+
+    <form method="post">
+
+        <!-- FULL NAME -->
+        <div class="mb-3">
+            <label class="form-label text-white">Full Name</label>
+            <input asp-for="Name" class="form-control" />
+        </div>
+
+        <!-- PHONE -->
+        <div class="mb-3">
+            <label class="form-label text-white">Phone Number</label>
+            <input asp-for="PhoneNumber" class="form-control" />
+        </div>
+
+        <!-- HOME COURSE -->
+        <div class="mb-3">
+            <label class="form-label text-white">Home Course</label>
+            <input asp-for="HomeCourse" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">
+            Save Changes
+        </button>
+
+    </form>
+
+</div>
+
+<style>
+    .auth-page {
+        max-width: 500px;
+        margin: 50px auto;
+    }
+
+    .auth-page .form-control {
+        background-color: white;
+        color: black;
+        border: 1px solid #999;
+    }
+</style>

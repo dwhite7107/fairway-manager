@@ -1,0 +1,67 @@
+@model IEnumerable<dynamic>
+@{
+    ViewData["Title"] = "My History";
+}
+
+<div class="leaderboard-container">
+
+    <h2 class="leaderboard-title">My History</h2>
+
+    <!-- 🔥 SUMMARY STATS -->
+    <div style="display:flex; gap:20px; margin-bottom:20px; flex-wrap:wrap;">
+
+        <div class="card p-3">
+            <strong>Tournaments</strong>
+            <div>@ViewBag.TournamentsPlayed</div>
+        </div>
+
+        <div class="card p-3">
+            <strong>Avg To Par</strong>
+            <div>@ViewBag.AvgToPar</div>
+        </div>
+
+        <div class="card p-3">
+            <strong>Best Finish</strong>
+            <div>@(ViewBag.BestFinish == 0 ? "-" : ViewBag.BestFinish)</div>
+        </div>
+
+
+    </div>
+
+    <!-- 🔥 HISTORY TABLE -->
+    <table class="leaderboard-table">
+        <thead>
+            <tr>
+                <th>Tournament</th>
+                <th>Date</th>
+                <th>Rank</th>
+                <th>To Par</th>
+                <th>View</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.TournamentName</td>
+                    <td>@item.Date.ToShortDateString()</td>
+                    <td>@(item.Rank == 0 ? "-" : item.Rank)</td>
+
+                    <td class="to-par @(item.ToPar < 0 ? "under" : item.ToPar > 0 ? "over" : "even")">
+                        @(item.ToPar == 0 ? "E" : item.ToPar > 0 ? "+" + item.ToPar : item.ToPar.ToString())
+                    </td>
+
+                    <td>
+                        <a asp-action="Leaderboard"
+                           asp-route-id="@item.TournamentId"
+                           class="btn btn-sm btn-primary">
+                            View
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

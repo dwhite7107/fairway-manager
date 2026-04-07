@@ -1,0 +1,28 @@
+@{
+    ViewData["Title"] = "Set Hole Pars";
+}
+
+<h2>Set Hole Pars</h2>
+
+<form asp-action="SetPars" method="post">
+
+    <input type="hidden" name="tournamentId" value="@ViewBag.TournamentId" />
+
+    @for (int i = 1; i <= ViewBag.HoleCount; i++)
+    {
+        <div class="mb-2">
+            <label>Hole @i Par</label>
+            <input type="number"
+                   name="pars"
+                   class="form-control"
+                   min="3"
+                   max="6"
+                   required />
+        </div>
+    }
+
+    <button type="submit" class="btn btn-success">
+        Save Pars
+    </button>
+
+</form>

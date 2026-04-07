@@ -1,0 +1,696 @@
+/* =========================
+   THEME VARIABLES (DARK GOLF)
+========================= */
+:root {
+    --bg-main: #1a3c2e;
+    --bg-card: #2a4f3e;
+    --bg-input: #214635;
+
+    --primary: #f5f5f0;
+    --accent: #dfeee6;
+
+    --border: #3f6b58;
+    --hover: #356b54;
+
+    --danger: #e74c3c;
+
+    --radius: 10px;
+    --shadow: 0 6px 18px rgba(0,0,0,0.3);
+}
+
+/* =========================
+   FONTS
+========================= */
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+/* =========================
+   GLOBAL
+========================= */
+body {
+    background-color: #1a3c2e;
+}
+
+/* Kill any accidental borders globally */
+hr, .border-top, .border-bottom {
+    border: none !important;
+}
+
+body {
+    font-family: 'DM Sans', sans-serif;
+    background-color: var(--bg-main);
+    color: var(--primary);
+    margin: 0;
+    animation: fadeIn 0.4s ease-in;
+}
+
+/* Remove ALL white backgrounds globally */
+html, body, .container {
+    background-color: var(--bg-main);
+}
+
+/* Headings */
+h1, h2, h3, h4 {
+    font-family: 'Bebas Neue', sans-serif;
+    color: var(--primary);
+    letter-spacing: 1px;
+}
+
+/* =========================
+   NAVBAR (CLEAN VERSION)
+========================= */
+.navbar {
+    background-color: var(--bg-main);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 30px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* LEFT SIDE */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+/* RIGHT SIDE */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* BRAND */
+.brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    color: var(--primary);
+    text-decoration: none;
+}
+
+/* LINKS */
+.nav-link {
+    color: var(--primary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    opacity: 0.7;
+}
+
+/* Fix logout button styling */
+.btn-link-clean {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-weight: 500;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-link-clean:hover {
+    opacity: 0.7;
+}
+
+/* User text */
+.nav-user {
+    margin-right: 12px;
+    color: var(--primary);
+    font-weight: 500;
+}
+/* Force nav-right to stay horizontal */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+/* Make sure forms don’t break layout */
+.nav-right form {
+    margin: 0;
+}
+
+/* Force logout button inline */
+.nav-right form,
+.nav-right button {
+    display: inline;
+}
+
+/* =========================
+   TOURNAMENT PAGE
+========================= */
+
+.tournament-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.btn-gold {
+    background-color: #d4af37;
+    color: #1a3c2e;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-gold:hover {
+    background-color: #e6c65c;
+}
+
+/* SEARCH */
+.search-container {
+    margin-bottom: 25px;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background-color: #214635;
+    color: white;
+    font-size: 14px;
+}
+
+#searchInput::placeholder {
+    color: #cfe3d8;
+}
+
+/* GRID */
+.tournament-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+/* CARD */
+.tournament-card {
+    background-color: #2a4f3e;
+    border-radius: 12px;
+    padding: 18px;
+    border: 1px solid var(--border);
+    transition: all 0.2s ease;
+}
+
+.tournament-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+}
+
+/* CARD HEADER */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h2 {
+    font-size: 20px;
+    margin: 0;
+    color: white;
+}
+
+/* DATE */
+.date {
+    margin-top: 10px;
+    color: #cfe3d8;
+}
+
+/* META */
+.meta {
+    font-size: 13px;
+    color: #a8cbb7;
+}
+
+/* FOOTER */
+.card-footer {
+    margin-top: 15px;
+}
+
+/* STATUS BADGES */
+.status-badge {
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.status-badge.open {
+    background-color: #2ecc71;
+    color: #1a3c2e;
+}
+
+.status-badge.closed {
+    background-color: #7f8c8d;
+    color: white;
+}
+
+.status-badge.inprogress {
+    background-color: #d4af37;
+    color: #1a3c2e;
+}
+
+
+
+/* =========================
+   LAYOUT
+========================= */
+.container {
+    max-width: 1100px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+.btn {
+    padding: 10px 18px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+/* Primary (light button) */
+.btn-primary {
+    background-color: var(--primary);
+    color: var(--bg-main);
+    border: none;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    background-color: #ffffff;
+    box-shadow: var(--shadow);
+}
+
+/* Secondary (outlined) */
+.btn-secondary {
+    background: transparent;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--hover);
+}
+
+/* Danger */
+.btn-danger {
+    background-color: var(--danger);
+    color: white;
+}
+
+/* =========================
+   CARDS
+========================= */
+.card {
+    background-color: var(--bg-card);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 20px;
+    margin-bottom: 20px;
+    transition: all 0.25s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.card-title {
+    font-size: 22px;
+}
+
+/* =========================
+   FORMS
+========================= */
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-top: 6px;
+    margin-bottom: 14px;
+    background-color: var(--bg-input);
+    color: var(--primary);
+    font-family: 'DM Sans', sans-serif;
+    transition: all 0.2s ease;
+}
+
+input::placeholder {
+    color: #cfe3d8;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px rgba(255,255,255,0.1);
+}
+
+label {
+    color: var(--accent);
+}
+
+/* =========================
+   TABLE (GENERAL)
+========================= */
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    background-color: var(--bg-card);
+    color: var(--primary);
+}
+
+.table td {
+    border-bottom: 1px solid var(--border);
+}
+
+/* =========================
+   ESPN LEADERBOARD (DARK)
+========================= */
+.leaderboard-container {
+    background: var(--bg-card);
+    border-radius: 12px;
+    padding: 25px;
+    margin-top: 20px;
+    box-shadow: var(--shadow);
+}
+
+.leaderboard-title {
+    font-size: 36px;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.leaderboard-table thead {
+    background-color: var(--hover);
+}
+
+.leaderboard-table th {
+    padding: 12px;
+    color: var(--primary);
+}
+
+.leaderboard-table td {
+    padding: 12px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Hover */
+.leaderboard-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.leaderboard-table tbody tr:hover {
+    background-color: var(--hover);
+    transform: scale(1.01);
+}
+
+/* Rank */
+.rank {
+    font-weight: bold;
+}
+
+/* To Par */
+.to-par.under {
+    color: #7CFC00;
+    font-weight: bold;
+}
+
+.to-par.over {
+    color: #ff6b6b;
+    font-weight: bold;
+}
+
+.to-par.even {
+    color: var(--accent);
+}
+
+/* =========================
+   HERO
+========================= */
+.hero {
+    background: linear-gradient(135deg, #1a3c2e, #2a4f3e);
+    padding: 40px;
+    border-radius: var(--radius);
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.card, .btn, input {
+    transition: all 0.2s ease;
+}
+
+/* =========================
+   UTILITIES
+========================= */
+.text-center {
+    text-align: center;
+}
+
+/* =========================
+   TOURNAMENT DETAILS PAGE
+========================= */
+
+.details-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.details-header h1 {
+    font-size: 32px;
+    margin-bottom: 10px;
+}
+
+/* INFO CHIPS */
+.info-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.info-chip {
+    background: #2a4f3e;
+    padding: 10px 14px;
+    border-radius: 8px;
+    border: 1px solid #355f4a;
+}
+
+.info-chip span {
+    font-size: 11px;
+    color: #a8cbb7;
+}
+
+.info-chip strong {
+    display: block;
+    color: white;
+}
+
+/* JOIN BADGE */
+.joined-badge {
+    background: #2ecc71;
+    color: #1a3c2e;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* JOIN CODE */
+.join-code-box {
+    background: #214635;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.join-code-box span {
+    font-size: 12px;
+    color: #cfe3d8;
+}
+
+.code-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.join-code-box h2 {
+    font-family: monospace;
+    font-size: 28px;
+    letter-spacing: 2px;
+}
+
+.btn-copy {
+    background: #f5f5f0;
+    color: #1a3c2e;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* GRID */
+.details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* CARD */
+.details-card {
+    background: #2a4f3e;
+    padding: 18px;
+    border-radius: 10px;
+}
+
+/* PLAYERS */
+.player-row {
+    padding: 8px 0;
+    border-bottom: 1px solid #355f4a;
+}
+
+/* TEAMS */
+.team-card {
+    background: #214635;
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+/* ACTION BAR */
+.action-bar {
+    margin-top: 30px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-action {
+    background: transparent;
+    border: 1px solid #cfe3d8;
+    padding: 10px 14px;
+    border-radius: 8px;
+    color: white;
+    transition: 0.2s;
+}
+
+.btn-action:hover {
+    background: #2ecc71;
+    color: #1a3c2e;
+}
+
+/* PRIMARY BUTTON */
+.btn-primary.big {
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+/* GOLD BUTTON */
+.btn-gold {
+    background: #f5f5f0;
+    color: #1a3c2e;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-weight: 600;
+    border: none;
+}
+
+.btn-gold:hover {
+    opacity: 0.85;
+}
+
+/* INPUT */
+.form-input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #355f4a;
+    background: #1a3c2e;
+    color: white;
+    margin-top: 10px;
+}
+.holes-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 15px;
+}
+
+.hole-card {
+    background: #2a4f3e;
+    padding: 12px;
+    border-radius: 10px;
+    text-align: center;
+}
+
+.score-input {
+    width: 60px;
+    margin: 8px 0;
+    background: #1a3c2e;
+    color: white;
+    border: 1px solid #355f4a;
+}
+
+.score-input.saved {
+    border: 2px solid #2ecc71;
+}
+
+.save-hole-btn {
+    background: #f5f5f0;
+    color: #1a3c2e;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.saved-indicator {
+    color: #2ecc71;
+    font-size: 12px;
+}
+
+/* 🔥 ONLY affect login + register pages */
+.auth-page .form-control {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+    border: 1px solid #999 !important;
+}
+
+.auth-page .form-control::placeholder {
+    color: #555 !important;
+    opacity: 1 !important;
+}
+
+.auth-page .form-control::-webkit-input-placeholder {
+    color: #555 !important;
+}
+
+.auth-page .form-control:-ms-input-placeholder {
+    color: #555 !important;
+}
+
+.auth-page .form-control::-ms-input-placeholder {
+    color: #555 !important;
+}

@@ -1,0 +1,18 @@
+@{
+    ViewData["Title"] = "Join Tournament";
+}
+
+<h2>Join Tournament</h2>
+
+<form asp-action="JoinByCode" method="post">
+    <div class="form-group">
+        <label>Enter Join Code</label>
+        <input name="code" class="form-control" required />
+    </div>
+
+    <br />
+
+    <button type="submit" class="btn btn-success">
+        Join Tournament
+    </button>
+</form>

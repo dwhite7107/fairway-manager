@@ -1,0 +1,120 @@
+@model IEnumerable<dynamic>
+
+@{
+    ViewData["Title"] = "Browse Tournaments";
+}
+
+<div class="container mt-4">
+
+    <h2 class="text-white mb-4">Browse Tournaments</h2>
+
+    <!-- 🔍 FILTER BAR -->
+    <form method="get" class="mb-4">
+        @{
+            var selectedStatus = Context.Request.Query["statusFilter"].ToString();
+        }
+
+        <select name="statusFilter" class="form-control w-auto">
+            <option value="" selected="@(string.IsNullOrEmpty(selectedStatus))">All Status</option>
+            <option value="Upcoming" selected="@(selectedStatus == "Upcoming")">Upcoming</option>
+            <option value="In Progress" selected="@(selectedStatus == "In Progress")">In Progress</option>
+            <option value="Completed" selected="@(selectedStatus == "Completed")">Completed</option>
+        </select>
+
+        <button type="submit" class="btn btn-primary ms-2">Filter</button>
+    </form>
+
+    <!-- 🟩 TOURNAMENT CARDS -->
+    <div class="row">
+        @if (!Model.Any())
+        {
+            <div class="text-center mt-5">
+                <h4>No tournaments found.</h4>
+
+                @if (!string.IsNullOrEmpty(Context.Request.Query["statusFilter"]))
+                {
+                    <p>
+                        No tournaments currently
+                        <strong>@Context.Request.Query["statusFilter"]</strong>.
+                    </p>
+                }
+            </div>
+        }
+        else
+        {
+            @foreach (var t in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card p-3">
+
+                        <h5>@t.Name</h5>
+
+                        <p><strong>Date:</strong> @t.Date.ToShortDateString()</p>
+                        <p><strong>Players:</strong> @t.PlayerCount</p>
+
+                        <span class="badge 
+                            @(t.Status == "Upcoming" ? "bg-primary" :
+                            t.Status == "In Progress" ? "bg-warning" : "bg-success")">
+                            @t.Status
+                        </span>
+
+                        <div class="mt-3">
+                            @if (t.Status == "Completed")
+                            {
+                                <a asp-action="Leaderboard" asp-route-id="@t.Id" class="btn btn-success w-100">
+                                    View Results
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-action="Details" asp-route-id="@t.Id" class="btn btn-primary w-100">
+                                    View Tournament
+                                </a>
+                            }
+                        </div>
+
+                    </div>
+                </div>
+            }
+        }
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+
+        @{
+            int currentPage = ViewBag.CurrentPage;
+            int totalPages = ViewBag.TotalPages;
+        }
+
+        <!-- PREV -->
+        @if (currentPage > 1)
+        {
+            <a class="btn btn-light mx-1"
+            asp-action="Browse"
+            asp-route-page="@(currentPage - 1)">
+                ← Prev
+            </a>
+        }
+
+        <!-- PAGE NUMBERS -->
+        @for (int i = 1; i <= totalPages; i++)
+        {
+            <a class="btn @(i == currentPage ? "btn-success" : "btn-light") mx-1"
+            asp-action="Browse"
+            asp-route-page="@i">
+                @i
+            </a>
+        }
+
+        <!-- NEXT -->
+        @if (currentPage < totalPages)
+        {
+            <a class="btn btn-light mx-1"
+            asp-action="Browse"
+            asp-route-page="@(currentPage + 1)">
+                Next →
+            </a>
+        }
+
+    </div>
+
+</div>

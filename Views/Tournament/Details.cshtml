@@ -1,0 +1,239 @@
+@model FairwayManager.Models.Tournament
+
+@{
+    ViewData["Title"] = "Tournament Details";
+
+    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+    bool alreadyJoined = Model.TournamentPlayers != null &&
+        Model.TournamentPlayers.Any(tp => tp.Player.UserId == currentUserId);
+
+    bool userAlreadyOnTeam = Model.TournamentTeams != null &&
+        Model.TournamentTeams.Any(tt =>
+            tt.Team.PlayerTeams.Any(pt => pt.Player.UserId == currentUserId));
+}
+
+<div class="tournament-details">
+
+    <!-- HEADER -->
+    <div class="details-header">
+        <div>
+            <h1>@Model.Name</h1>
+
+            <div class="info-row">
+                <div class="info-chip">
+                    <span>Course</span>
+                    <strong>@Model.CourseName</strong>
+                </div>
+
+                <div class="info-chip">
+                    <span>Date</span>
+                    <strong>@Model.Date.ToString("MMMM dd, yyyy")</strong>
+                </div>
+
+                <div class="info-chip">
+                    <span>Status</span>
+                    <strong>@Model.Status</strong>
+                </div>
+
+                <div class="info-chip">
+                    <span>Holes</span>
+                    <strong>@Model.HoleCount</strong>
+                </div>
+
+                <div class="info-chip">
+                    <span>Format</span>
+                    <strong>@Model.ScoringType</strong>
+                </div>
+            </div>
+        </div>
+
+        @if (alreadyJoined)
+        {
+            <div class="joined-badge">
+                You have joined
+            </div>
+        }
+    </div>
+
+    <!-- JOIN CODE (CREATOR ONLY) -->
+    @if (currentUserId == Model.CreatorId)
+    {
+        <div class="join-code-box">
+            <span>Join Code</span>
+            <div class="code-row">
+                <h2 id="joinCode">@Model.JoinCode</h2>
+                <button onclick="copyCode()" class="btn-copy">Copy</button>
+            </div>
+        </div>
+    }
+
+    <!-- JOIN FORM -->
+    @if (!alreadyJoined)
+    {
+        <div class="details-card">
+            <h3>Join Tournament</h3>
+
+            @if (User.Identity.IsAuthenticated)
+            {
+                <!-- NORMAL JOIN FORM -->
+                <form asp-action="Join" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" value="@Model.Id" />
+
+                    <input type="text"
+                        name="code"
+                        placeholder="Enter join code"
+                        class="form-input"
+                        required />
+
+                    <button type="submit" class="btn btn-gold mt-2">
+                        Join Tournament
+                    </button>
+                </form>
+            }
+            else
+            {
+                <!-- NOT LOGGED IN -->
+                <a asp-area="Identity"
+                asp-page="/Account/Register"
+                asp-route-returnUrl="@Url.Action("Details", "Tournament", new { id = Model.Id })"
+                asp-route-message="join"
+                class="btn btn-warning mt-2">
+                    Join Tournament
+                </a>
+            }
+        </div>
+    }
+    else
+    {
+        <!-- MAIN GRID -->
+        <div class="details-grid">
+
+            <!-- PLAYERS -->
+            <div class="details-card">
+                <h3>Players</h3>
+
+                @if (Model.TournamentPlayers == null || !Model.TournamentPlayers.Any())
+                {
+                    <p>No players yet.</p>
+                }
+                else
+                {
+                    @foreach (var tp in Model.TournamentPlayers)
+                    {
+                        <div class="player-row">
+                            ⛳ @tp.Player.Name
+                        </div>
+                    }
+                }
+            </div>
+
+            <!-- TEAMS -->
+            @if (Model.IsTeamBased)
+            {
+                <div class="details-card">
+
+                    <div class="card-header">
+                        <h3>Teams</h3>
+
+                        @if (!userAlreadyOnTeam)
+                        {
+                            <a asp-controller="Team"
+                               asp-action="Create"
+                               asp-route-tournamentId="@Model.Id"
+                               class="btn btn-gold">
+                                Create Team
+                            </a>
+                        }
+                    </div>
+
+                    @if (Model.TournamentTeams == null || !Model.TournamentTeams.Any())
+                    {
+                        <p>No teams yet.</p>
+                    }
+                    else
+                    {
+                        @foreach (var tt in Model.TournamentTeams)
+                        {
+                            <div class="team-card">
+
+                                <strong>@tt.Team.Name</strong>
+
+                                <div class="team-players">
+                                    @foreach (var pt in tt.Team.PlayerTeams)
+                                    {
+                                        <div>• @pt.Player.Name</div>
+                                    }
+                                </div>
+
+                                @if (!userAlreadyOnTeam)
+                                {
+                                    <form asp-controller="Team" asp-action="Join" method="post">
+                                        <input type="hidden" name="teamId" value="@tt.Team.Id" />
+                                        <input type="hidden" name="tournamentId" value="@Model.Id" />
+
+                                        <button type="submit" class="btn btn-secondary mt-2">
+                                            Join Team
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success mt-2">
+                                        Already on a team
+                                    </span>
+                                }
+
+                            </div>
+                        }
+                    }
+
+                </div>
+            }
+
+        </div>
+
+        <!-- MANAGEMENT -->
+        <div class="action-bar">
+
+            @if (currentUserId == Model.CreatorId)
+            {
+                <a asp-action="ManagePlayers" asp-route-id="@Model.Id" class="btn-action">
+                    👤 Manage Players
+                </a>
+
+                <a class="btn-action">
+                    👥 Manage Teams
+                </a>
+
+                <a asp-action="SetPars" asp-route-id="@Model.Id" class="btn-action">
+                    ⛳ Set Pars
+                </a>
+            }
+
+            <a asp-action="EnterScores" asp-route-id="@Model.Id" class="btn-action">
+                ✏️ Enter Scores
+            </a>
+
+            <a asp-action="Leaderboard" asp-route-id="@Model.Id" class="btn-primary big">
+                🏆 View Leaderboard
+            </a>
+
+        </div>
+    }
+
+    <br />
+
+    <a asp-action="Index" class="btn btn-outline-light">
+        Back to Tournaments
+    </a>
+
+</div>
+
+<script>
+function copyCode() {
+    const code = document.getElementById("joinCode").innerText;
+    navigator.clipboard.writeText(code);
+}
+</script>

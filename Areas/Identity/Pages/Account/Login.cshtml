@@ -1,0 +1,76 @@
+﻿@page
+@model LoginModel
+
+<div class="auth-page">
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<h1 class="text-white">@ViewData["Title"]</h1>
+@if (Request.Query["message"] == "join")
+{
+    <div class="alert alert-info">
+        Create a free account to join this tournament.
+    </div>
+}
+
+<div class="row">
+    <div class="col-md-4">
+        <section>
+            <form id="account" method="post">
+                <h2 class="text-white">Log in to FairwayManager</h2>
+                <hr />
+
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <!-- EMAIL -->
+                <div class="mb-3">
+                    <label asp-for="Input.Email" class="form-label text-white"></label>
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" />
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
+
+                <!-- PASSWORD -->
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label text-white"></label>
+                    <input asp-for="Input.Password" class="form-control" autocomplete="current-password" />
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+
+                <!-- REMEMBER ME -->
+                <div class="checkbox mt-3">
+                    <label asp-for="Input.RememberMe" class="form-label text-white">
+                        <input class="form-check-input" asp-for="Input.RememberMe" />
+                        @Html.DisplayNameFor(m => m.Input.RememberMe)
+                    </label>
+                </div>
+
+                <div class="mt-3">
+                    <button id="login-submit" type="submit" class="w-100 btn btn-lg btn-primary">
+                        Log in
+                    </button>
+                </div>
+
+            </form>
+        </section>
+    </div>
+</div>
+
+<!-- 🔥 SCOPED STYLING -->
+<style>
+    .auth-page .form-control {
+        background-color: white;
+        color: black;
+        border: 1px solid #999;
+    }
+
+    .auth-page .form-label {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+</style>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+</div>
