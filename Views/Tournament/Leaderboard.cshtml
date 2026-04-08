@@ -4,26 +4,62 @@
     ViewData["Title"] = "Leaderboard";
 }
 
+<style>
+.tournament-info-bar {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.info-chip {
+    background-color: #1f4d2e; /* dark green */
+    padding: 12px 18px;
+    border-radius: 10px;
+    min-width: 150px;
+}
+
+.info-chip .label {
+    font-size: 12px;
+    color: #cbd5e1;
+    margin-bottom: 3px;
+}
+
+.info-chip .value {
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+}
+</style>
+
 <div class="leaderboard-container">
 
-    <h2 class="leaderboard-title">Leaderboard - @ViewBag.TournamentName</h2>
+    <h2 class="leaderboard-title">Leaderboard </h2>
 
-    <!-- 🔥 NAV BUTTONS (RIGHT UNDER TITLE) -->
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
+    <div class="tournament-info-bar mt-3 mb-4">
+        <div class="info-chip">
+            <div class="label">Tournament</div>
+            <div class="value">@ViewBag.TournamentName</div>
+        </div>
 
-        <a asp-action="Details"
-           asp-route-id="@ViewContext.RouteData.Values["id"]"
-           class="btn btn-outline-light">
-            ← Back to Tournament
-        </a>
+        <div class="info-chip">
+            <div class="label">Course</div>
+            <div class="value">@ViewBag.CourseName</div>
+        </div>
 
-        <a asp-action="EnterScores"
-           asp-route-id="@ViewContext.RouteData.Values["id"]"
-           class="btn btn-primary">
-            ✏️ Enter Scores
-        </a>
+        <div class="info-chip">
+            <div class="label">Format</div>
+            <div class="value">@ViewBag.ScoringType</div>
+        </div>
 
+        <div class="info-chip">
+            <div class="label">Date</div>
+            <div class="value">@ViewBag.Date</div>
+        </div>
     </div>
+
+
+
+
 
     <table class="leaderboard-table">
         <thead>
@@ -51,4 +87,21 @@
         </tbody>
     </table>
 
+        
+
+
+</div>
+
+<div class="d-flex gap-2 mt-4">
+    <a asp-action="Details"
+       asp-route-id="@ViewContext.RouteData.Values["id"]"
+       class="btn btn-outline-light">
+        ← Back to Tournament
+    </a>
+
+    <a asp-action="EnterScores"
+       asp-route-id="@ViewContext.RouteData.Values["id"]"
+       class="btn btn-primary">
+        ✏️ Enter Scores
+    </a>
 </div>

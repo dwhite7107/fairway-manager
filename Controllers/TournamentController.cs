@@ -217,15 +217,23 @@ namespace FairwayManager.Controllers
         }
 
         // GET: Set Pars
-        public async Task<IActionResult> SetPars(int id)
+        public IActionResult SetPars(int id)
         {
-            var tournament = await _context.Tournaments.FindAsync(id);
+            var tournament = _context.Tournaments
+                .FirstOrDefault(t => t.Id == id);
 
             if (tournament == null)
                 return NotFound();
 
-            ViewBag.HoleCount = tournament.HoleCount;
+            var pars = _context.TournamentHolePars
+                .Where(p => p.TournamentId == id)
+                .OrderBy(p => p.HoleNumber)
+                .Select(p => p.Par)
+                .ToList();
+
             ViewBag.TournamentId = id;
+            ViewBag.HoleCount = tournament.HoleCount;
+            ViewBag.Pars = pars;
 
             return View();
         }
@@ -235,22 +243,40 @@ namespace FairwayManager.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SetPars(int tournamentId, List<int> pars)
         {
+            var existingPars = _context.TournamentHolePars
+                .Where(p => p.TournamentId == tournamentId)
+                .ToList();
+
             for (int i = 0; i < pars.Count; i++)
             {
-                var holePar = new TournamentHolePar
-                {
-                    TournamentId = tournamentId,
-                    HoleNumber = i + 1,
-                    Par = pars[i]
-                };
+                int holeNumber = i + 1;
 
-                _context.TournamentHolePars.Add(holePar);
+                var existing = existingPars
+                    .FirstOrDefault(p => p.HoleNumber == holeNumber);
+
+                if (existing != null)
+                {
+                    // UPDATE
+                    existing.Par = pars[i];
+                }
+                else
+                {
+                    // CREATE
+                    _context.TournamentHolePars.Add(new TournamentHolePar
+                    {
+                        TournamentId = tournamentId,
+                        HoleNumber = holeNumber,
+                        Par = pars[i]
+                    });
+                }
             }
 
             await _context.SaveChangesAsync();
 
-            return RedirectToAction("Details", new { id = tournamentId });
+            return RedirectToAction("SetPars", new { id = tournamentId });
         }
+
+
         [Authorize]
         public IActionResult EditProfile()
         {
@@ -338,6 +364,34 @@ namespace FairwayManager.Controllers
             ViewBag.CurrentRound = round;
 
             return View(tournament);
+        }
+
+        [HttpPost]
+        public IActionResult SaveSinglePar([FromBody] SaveParRequest request)
+        {
+            var existing = _context.TournamentHolePars
+                .FirstOrDefault(p => p.TournamentId == request.TournamentId
+                                && p.HoleNumber == request.HoleNumber);
+
+            if (existing != null)
+            {
+                // UPDATE
+                existing.Par = request.Par;
+            }
+            else
+            {
+                // CREATE
+                _context.TournamentHolePars.Add(new TournamentHolePar
+                {
+                    TournamentId = request.TournamentId,
+                    HoleNumber = request.HoleNumber,
+                    Par = request.Par
+                });
+            }
+
+            _context.SaveChanges();
+
+            return Json(new { success = true });
         }
 
         [HttpPost]
@@ -591,6 +645,14 @@ namespace FairwayManager.Controllers
             }
 
             ViewBag.TournamentName = tournament.Name;
+            ViewBag.CourseName = tournament.CourseName;
+            ViewBag.Date = tournament.Date.ToString("MMM dd, yyyy");
+            
+            string scoringDisplay = tournament.IsTeamBased
+                ? tournament.ScoringType
+                : "Individual";
+
+            ViewBag.ScoringType = scoringDisplay;
 
             return View(leaderboard);
         }
