@@ -18,11 +18,14 @@ namespace FairwayManager.Data
         public DbSet<Score> Scores { get; set; }
         public DbSet<TournamentHolePar> TournamentHolePars { get; set; }
         public DbSet<TeamScore> TeamScores { get; set; }
+        public DbSet<Hole> Holes { get; set; }
 
         // Bridge Tables
         public DbSet<TournamentPlayer> TournamentPlayers { get; set; }
         public DbSet<TournamentTeam> TournamentTeams { get; set; }
         public DbSet<PlayerTeam> PlayerTeams { get; set; }
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
