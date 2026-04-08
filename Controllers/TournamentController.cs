@@ -556,7 +556,7 @@ namespace FairwayManager.Controllers
                                 .Select(g => g.Min(x => x.Strokes))
                                 .ToList();
                         }
-                        else if (tournament.ScoringType == "Stroke")
+                        else if (tournament.ScoringType == "StrokePlay")
                         {
                             scoresByHole = teamPlayerScores
                                 .GroupBy(s => new { s.HoleNumber, s.RoundNumber })
