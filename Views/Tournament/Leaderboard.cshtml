@@ -58,8 +58,22 @@
     </div>
 
 
+<div class="mb-3">
+    <strong>View:</strong>
 
+    <a class="btn btn-sm @(ViewBag.SelectedRound == 0 ? "btn-primary" : "btn-outline-primary")"
+       href="@Url.Action("Leaderboard", new { id = ViewContext.RouteData.Values["id"] })">
+        Total
+    </a>
 
+    @for (int i = 1; i <= (int)ViewBag.TotalRounds; i++)
+    {
+        <a class="btn btn-sm @(ViewBag.SelectedRound == i ? "btn-primary" : "btn-outline-primary")"
+           href="@Url.Action("Leaderboard", new { id = ViewContext.RouteData.Values["id"], round = i })">
+            Round @i
+        </a>
+    }
+</div>
 
     <table class="leaderboard-table">
         <thead>
@@ -87,9 +101,6 @@
         </tbody>
     </table>
 
-        
-
-
 </div>
 
 <div class="d-flex gap-2 mt-4">
@@ -99,9 +110,19 @@
         ← Back to Tournament
     </a>
 
-    <a asp-action="EnterScores"
-       asp-route-id="@ViewContext.RouteData.Values["id"]"
-       class="btn btn-primary">
-        ✏️ Enter Scores
-    </a>
+    @{
+        var tournament = ViewBag.Tournament;
+
+        var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1);
+        var isCompleted = DateTime.Today > endDate;
+    }
+
+    @if (!isCompleted)
+    {
+        <a asp-action="EnterScores"
+        asp-route-id="@ViewContext.RouteData.Values["id"]"
+        class="btn btn-primary">
+            ✏️ Enter Scores
+        </a>
+    }
 </div>

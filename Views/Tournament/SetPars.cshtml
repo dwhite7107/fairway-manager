@@ -24,11 +24,17 @@
                 <div class="d-flex align-items-center gap-2">
                     <label style="width:70px;">Hole @(i + 1)</label>
 
+                    @{
+                        var holeNumber = i + 1;
+                        var parsList = ViewBag.Pars as List<FairwayManager.Models.TournamentHolePar>;
+                        var existingPar = parsList?.FirstOrDefault(p => p.HoleNumber == holeNumber);
+                    }
+
                     <input type="number"
-                           id="par-@i"
-                           class="form-control"
-                           style="width:70px;"
-                           value="@(ViewBag.Pars != null && ViewBag.Pars.Count > i ? ViewBag.Pars[i] : "")" />
+                        id="par-@i"
+                        class="form-control"
+                        style="width:70px;"
+                        value="@(existingPar != null ? existingPar.Par : "")" />
 
                     <button type="button"
                             class="btn btn-primary btn-sm"

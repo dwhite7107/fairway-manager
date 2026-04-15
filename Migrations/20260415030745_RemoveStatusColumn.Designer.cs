@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FairwayManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260408173547_AddHoleRelation")]
-    partial class AddHoleRelation
+    [Migration("20260415030745_RemoveStatusColumn")]
+    partial class RemoveStatusColumn
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -183,6 +183,9 @@ namespace FairwayManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
                     b.Property<string>("CourseName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -215,6 +218,12 @@ namespace FairwayManager.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -225,8 +234,7 @@ namespace FairwayManager.Migrations
                     b.Property<string>("ScoringType")
                         .HasColumnType("text");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<string>("State")
                         .HasColumnType("text");
 
                     b.HasKey("Id");
@@ -294,30 +302,6 @@ namespace FairwayManager.Migrations
                     b.HasIndex("TeamId");
 
                     b.ToTable("TournamentTeams");
-                });
-
-            modelBuilder.Entity("Hole", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("HoleNumber")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Par")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("TournamentId")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TournamentId");
-
-                    b.ToTable("Holes");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -644,17 +628,6 @@ namespace FairwayManager.Migrations
                     b.Navigation("Tournament");
                 });
 
-            modelBuilder.Entity("Hole", b =>
-                {
-                    b.HasOne("FairwayManager.Models.Tournament", "Tournament")
-                        .WithMany("Holes")
-                        .HasForeignKey("TournamentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Tournament");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -724,8 +697,6 @@ namespace FairwayManager.Migrations
 
             modelBuilder.Entity("FairwayManager.Models.Tournament", b =>
                 {
-                    b.Navigation("Holes");
-
                     b.Navigation("Scores");
 
                     b.Navigation("TournamentPlayers");

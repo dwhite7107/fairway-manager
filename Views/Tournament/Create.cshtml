@@ -20,11 +20,31 @@
         <input asp-for="Description" class="form-control" />
     </div>
 
-    <div class="form-group">
-        <label asp-for="CourseName"></label>
-        <input asp-for="CourseName" class="form-control" />
-        <span asp-validation-for="CourseName" class="text-danger"></span>
+    <div class="mb-3">
+        <label class="form-label">Course</label>
+        <input type="text" id="courseSearch" class="form-control" autocomplete="off" placeholder="Start typing course name..." />
+        
+        <div id="courseResults" class="list-group mt-1"></div>
+
+        <small class="text-muted">Select a course from the list or enter manually</small>
     </div>
+
+    <button type="button" id="manualEntryBtn" class="btn btn-link p-0 mb-3">
+        Course not listed? Enter manually
+    </button>
+
+    <div id="manualFields" style="display:none;">
+        <input type="text" id="manualCourse" class="form-control mb-2" placeholder="Course Name" />
+        <input type="text" name="City" class="form-control mb-2" placeholder="City" />
+        <input type="text" name="State" class="form-control mb-2" placeholder="State" />
+    </div>
+
+    <!-- Hidden fields -->
+    <input type="hidden" id="Course" name="CourseName" />
+    <input type="hidden" id="City" name="City" />
+    <input type="hidden" id="State" name="State" />
+    <input type="hidden" id="Latitude" name="Latitude" />
+    <input type="hidden" id="Longitude" name="Longitude" />
 
     <div class="form-group">
         <label asp-for="Date"></label>
@@ -78,27 +98,106 @@
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-    document.addEventListener("DOMContentLoaded", function () {
+        document.addEventListener("DOMContentLoaded", function () {
 
-        const eventType = document.getElementById("eventTypeDropdown");
-        const scoringSection = document.getElementById("scoringTypeSection");
+            // ===== EXISTING CODE =====
+            const eventType = document.getElementById("eventTypeDropdown");
+            const scoringSection = document.getElementById("scoringTypeSection");
 
-        function toggleScoring() {
-
-            if (eventType.value === "true") {
-                // Team event
-                scoringSection.style.display = "block";
-            } else {
-                // Individual event
-                scoringSection.style.display = "none";
+            function toggleScoring() {
+                if (eventType.value === "true") {
+                    scoringSection.style.display = "block";
+                } else {
+                    scoringSection.style.display = "none";
+                }
             }
 
-        }
+            toggleScoring();
+            eventType.addEventListener("change", toggleScoring);
 
-        toggleScoring();
+            document.getElementById("manualEntryBtn")?.addEventListener("click", function () {
+                document.getElementById("manualFields").style.display = "block";
 
-        eventType.addEventListener("change", toggleScoring);
+                const manualInput = document.getElementById("manualCourse");
 
-    });
+                manualInput.addEventListener("input", function () {
+                    document.getElementById("Course").value = this.value;
+                });
+            });
+
+
+            // ===== NEW NOMINATIM CODE =====
+            let timeout = null;
+            const cache = {};
+
+            const courseInput = document.getElementById("courseSearch");
+            const resultsDiv = document.getElementById("courseResults");
+
+            if (courseInput) {
+                courseInput.addEventListener("input", function () {
+                    clearTimeout(timeout);
+
+                    const query = this.value.trim();
+
+                    timeout = setTimeout(() => {
+                        if (query.length < 3) return;
+
+                        if (cache[query]) {
+                            displayResults(cache[query]);
+                            return;
+                        }
+
+                        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`)
+                            .then(res => res.json())
+                            .then(data => {
+                                cache[query] = data;
+                                displayResults(data);
+                            });
+                    }, 500);
+                });
+            }
+
+            function displayResults(data) {
+                resultsDiv.innerHTML = "";
+
+                if (data.length === 0) {
+                    resultsDiv.innerHTML = `<div class="list-group-item">No results found</div>`;
+                    return;
+                }
+
+                data.forEach(place => {
+                    const item = document.createElement("a");
+                    item.classList.add("list-group-item", "list-group-item-action");
+                    item.textContent = place.display_name;
+
+                    item.onclick = () => {
+                        const address = place.address || {};
+
+                        document.getElementById("courseSearch").value = place.display_name;
+
+                        document.getElementById("Course").value = place.display_name;
+                        document.getElementById("City").value = address.city || address.town || address.village || "";
+                        document.getElementById("State").value = address.state || "";
+                        document.getElementById("Latitude").value = place.lat;
+                        document.getElementById("Longitude").value = place.lon;
+
+                        resultsDiv.innerHTML = "";
+                    };
+
+                    resultsDiv.appendChild(item);
+                });
+            }
+
+            // Manual toggle
+            document.getElementById("manualEntryBtn")?.addEventListener("click", function () {
+                document.getElementById("manualFields").style.display = "block";
+
+                document.getElementById("Course").value = "";
+                document.getElementById("Latitude").value = "";
+                document.getElementById("Longitude").value = "";
+            });
+
+        });
     </script>
 }
+

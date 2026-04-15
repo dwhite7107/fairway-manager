@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FairwayManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260407205448_RemoveCoursePar")]
-    partial class RemoveCoursePar
+    [Migration("20260408210016_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

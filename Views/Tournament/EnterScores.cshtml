@@ -57,18 +57,18 @@
                             <label>Hole @i</label>
 
                             <input type="number"
-                                   class="form-control score-input"
-                                   data-player="@tp.Player.Id"
-                                   data-hole="@i"
-                                   data-round="1"
-                                   value=""
-                                   min="1" />
+                                class="form-control score-input"
+                                data-player="@tp.Player.Id"
+                                data-hole="@i"
+                                data-round="@ViewBag.CurrentRound"
+                                value=""
+                                min="1" />
 
                             <button type="button"
                                     class="btn btn-sm btn-primary mt-1 save-hole-btn"
                                     data-player="@tp.Player.Id"
                                     data-hole="@i"
-                                    data-round="1">
+                                    data-round="@ViewBag.CurrentRound">
                                 Save
                             </button>
                         </div>
@@ -83,17 +83,19 @@
 @section Scripts {
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        const allScores = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
-            ((List<FairwayManager.Models.Score>)ViewBag.Scores).Select(s => new {
+
+        let allScores = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+            ((List<FairwayManager.Models.Score>)ViewBag.AllScores).Select(s => new {
                 playerId = s.PlayerId,
                 holeNumber = s.HoleNumber,
                 strokes = s.Strokes,
                 roundNumber = s.RoundNumber
             })
         ));
+
         console.log("ALL SCORES:", allScores);
 
-        let currentRound = 1;
+        let currentRound = parseInt('@ViewBag.CurrentRound');
 
         document.getElementById("roundSelect").addEventListener("change", function () {
             currentRound = parseInt(this.value);
@@ -135,9 +137,9 @@
                 console.log("Checking:", playerId, hole, currentRound);
 
                 let match = allScores.find(s =>
-                    s.playerId == playerId &&
-                    s.holeNumber == hole &&
-                    s.roundNumber == currentRound
+                    s.playerId === playerId &&
+                    s.holeNumber === hole &&
+                    s.roundNumber === parseInt(currentRound)
                 );
 
                 if (match) {
@@ -172,9 +174,9 @@
 document.querySelectorAll(".save-hole-btn").forEach(button => {
     button.addEventListener("click", function () {
 
-        let playerId = this.dataset.player;
-        let hole = this.dataset.hole;
-        let round = this.dataset.round;
+        let playerId = parseInt(this.dataset.player);
+        let hole = parseInt(this.dataset.hole);
+        let round = currentRound;
 
         let input = document.querySelector(`.score-input[data-player='${playerId}'][data-hole='${hole}']`);
         let strokes = input.value;
@@ -198,9 +200,9 @@ document.querySelectorAll(".save-hole-btn").forEach(button => {
                 input.classList.add("saved");
 
                 let existing = allScores.find(s =>
-                    s.playerId == playerId &&
-                    s.holeNumber == hole &&
-                    s.roundNumber == round
+                    s.playerId === playerId &&
+                    s.holeNumber === hole &&
+                    s.roundNumber === round
                 );
 
                 if (existing) {

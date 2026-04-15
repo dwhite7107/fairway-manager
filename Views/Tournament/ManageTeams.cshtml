@@ -1,0 +1,85 @@
+@model FairwayManager.Models.Tournament
+
+<div class="container mt-4">
+
+    <h2>Manage Teams - @Model.Name</h2>
+
+    @if (Model.TournamentTeams != null && Model.TournamentTeams.Any())
+    {
+        foreach (var tt in Model.TournamentTeams)
+        {
+            <div class="tournament-card mb-4">
+                <div class="card-content">
+
+                    <!-- TEAM NAME -->
+                    <h4>@tt.Team.Name</h4>
+
+                    <!-- PLAYERS -->
+                    @if (tt.Team.PlayerTeams != null && tt.Team.PlayerTeams.Any())
+                    {
+                        <ul style="margin-top:10px;">
+                            @foreach (var pt in tt.Team.PlayerTeams)
+                            {
+                                <li style="margin-bottom:5px;">
+                                    @pt.Player.Name
+
+                                    <form asp-action="RemovePlayerFromTeam" method="post" style="display:inline;">
+                                        <input type="hidden" name="teamId" value="@tt.Team.Id" />
+                                        <input type="hidden" name="playerId" value="@pt.Player.Id" />
+                                        <input type="hidden" name="tournamentId" value="@Model.Id" />
+
+                                        <button type="submit" class="btn btn-danger btn-sm">
+                                            Remove
+                                        </button>
+                                    </form>
+                                    <form asp-action="MovePlayer" method="post" style="display:inline;">
+                                        <input type="hidden" name="playerId" value="@pt.Player.Id" />
+                                        <input type="hidden" name="currentTeamId" value="@tt.Team.Id" />
+                                        <input type="hidden" name="tournamentId" value="@Model.Id" />
+
+                                        <select name="newTeamId">
+                                            @foreach (var team in Model.TournamentTeams)
+                                            {
+                                                <option value="@team.Team.Id">@team.Team.Name</option>
+                                            }
+                                        </select>
+
+                                        <button class="btn btn-warning btn-sm">
+                                            Move
+                                        </button>
+                                    </form>
+
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p>No players in this team.</p>
+                    }
+
+                    <!-- 🔴 DELETE TEAM BUTTON -->
+                    <form asp-action="DeleteTeam" method="post" style="margin-top:10px;">
+                        <input type="hidden" name="teamId" value="@tt.Team.Id" />
+                        <input type="hidden" name="tournamentId" value="@Model.Id" />
+
+                        <button class="btn btn-danger btn-sm">
+                            Delete Team
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No teams created yet.</p>
+    }
+
+    <!-- BACK BUTTON -->
+    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary mt-3">
+        Back to Tournament
+    </a>
+
+</div>

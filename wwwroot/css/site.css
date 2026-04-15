@@ -241,19 +241,53 @@ h1, h2, h3, h4 {
     font-weight: 600;
 }
 
-.status-badge.open {
-    background-color: #2ecc71;
+/* Upcoming = blue */
+.status-badge.upcoming {
+    background-color: #3b82f6;
+    color: white;
+}
+
+/* In Progress = gold */
+.status-badge.inprogress {
+    /* 🔥 FIXED (no hyphen) */
+    background-color: #d4af37;
     color: #1a3c2e;
 }
 
-.status-badge.closed {
+/* Completed = gray */
+.status-badge.completed {
     background-color: #7f8c8d;
     color: white;
 }
 
-.status-badge.inprogress {
+/* PLAYER CARD */
+.player-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.2s ease;
+}
+
+.player-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+/* PLAYER INFO */
+.player-info h5 {
+    margin-bottom: 10px;
+}
+
+/* CREATOR BADGE */
+.creator-badge {
+    display: inline-block;
     background-color: #d4af37;
     color: #1a3c2e;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
 }
 
 
@@ -693,4 +727,137 @@ label {
 
 .auth-page .form-control::-ms-input-placeholder {
     color: #555 !important;
+}
+/* 🔥 HERO */
+.hero {
+    height: 100vh;
+    background: url('https://images.unsplash.com/photo-1592919505780-303950717480?auto=format&fit=crop&w=1920&q=80') no-repeat center center/cover;
+    position: relative;
+}
+
+.hero-overlay {
+    background: rgba(10, 40, 20, 0.65);
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.hero-content {
+    color: white;
+    max-width: 800px;
+}
+
+.hero h1 {
+    font-size: 3.5rem;
+    font-weight: bold;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    margin: 20px 0;
+}
+
+.hero-buttons {
+    margin-top: 20px;
+}
+
+.btn-primary-custom {
+    background: #d4af37;
+    color: black;
+    padding: 10px 20px;
+    margin-right: 10px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+.btn-outline-custom {
+    border: 2px solid white;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+/* 📍 LOCATION BAR */
+.location-bar {
+    background: linear-gradient(to right, #1b3a2a, #244d36);
+    color: #e5e5e5;
+    padding: 14px;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.location-icon {
+    font-size: 1.3rem;
+    margin-right: 6px;
+}
+
+.location-text strong {
+    color: #d4af37;
+    /* gold highlight */
+}
+
+/* 🔥 SECTION TITLES */
+.section-title {
+    color: #e5e5e5;
+    font-weight: bold;
+}
+
+/* 🟢 TOURNAMENT CARDS */
+.tournament-card {
+    background: #1f3f2f;
+    border-radius: 10px;
+    padding: 20px;
+    color: white;
+    transition: all 0.3s ease;
+}
+
+.tournament-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.4);
+}
+
+.card-content h4 {
+    font-weight: bold;
+}
+
+.location {
+    color: #bbb;
+}
+
+.date {
+    margin-bottom: 10px;
+}
+
+/* 🔥 BADGES */
+.badge.upcoming {
+    background: #28a745;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.badge.recent {
+    background: #6c757d;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+/* 🔥 BUTTON */
+.btn-view {
+    display: inline-block;
+    margin-top: 10px;
+    background: #d4af37;
+    color: black;
+    padding: 8px 15px;
+    border-radius: 5px;
+    text-decoration: none;
+}
+
+/* 📱 MOBILE */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
 }

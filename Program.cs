@@ -18,6 +18,7 @@ builder.Services.AddDefaultIdentity<IdentityUser>(options =>
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 builder.Services.AddScoped<TournamentService>();
+builder.Services.AddSingleton<GeoLocationService>();
 
 
 

@@ -1,9 +1,12 @@
 @model FairwayManager.Models.Tournament
 
+
+@using System.Security.Claims
+
 @{
     ViewData["Title"] = "Tournament Details";
 
-    var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+    var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
     bool alreadyJoined = Model.TournamentPlayers != null &&
         Model.TournamentPlayers.Any(tp => tp.Player.UserId == currentUserId);
@@ -13,7 +16,31 @@
             tt.Team.PlayerTeams.Any(pt => pt.Player.UserId == currentUserId));
 }
 
+
+
+
 <div class="tournament-details">
+
+@{
+    var endDate = Model.Date.AddDays(Model.NumberOfRounds - 1);
+
+    string status;
+
+    if (DateTime.Today < Model.Date)
+    {
+        status = "Upcoming";
+    }
+    else if (DateTime.Today <= endDate)
+    {
+        status = "In Progress";
+    }
+    else
+    {
+        status = "Completed";
+    }
+}
+
+
 
     <!-- HEADER -->
     <div class="details-header">
@@ -33,7 +60,9 @@
 
                 <div class="info-chip">
                     <span>Status</span>
-                    <strong>@Model.Status</strong>
+                    <strong class="status-text">
+                        @status
+                    </strong>
                 </div>
 
                 <div class="info-chip">
@@ -45,6 +74,9 @@
                     <span>Format</span>
                     <strong>@Model.ScoringType</strong>
                 </div>
+
+
+
             </div>
         </div>
 
@@ -57,7 +89,7 @@
     </div>
 
     <!-- JOIN CODE (CREATOR ONLY) -->
-    @if (currentUserId == Model.CreatorId)
+    @if (User.Identity.IsAuthenticated && currentUserId == Model.CreatorId)
     {
         <div class="join-code-box">
             <span>Join Code</span>
@@ -203,18 +235,29 @@
                     👤 Manage Players
                 </a>
 
-                <a class="btn-action">
-                    👥 Manage Teams
-                </a>
+                @if (Model.IsTeamBased)
+                {
+                    <a asp-action="ManageTeams" asp-route-id="@Model.Id" class="btn-action">
+                        👥 Manage Teams
+                    </a>
+                }
 
                 <a asp-action="SetPars" asp-route-id="@Model.Id" class="btn-action">
                     ⛳ Set Pars
                 </a>
             }
 
-            <a asp-action="EnterScores" asp-route-id="@Model.Id" class="btn-action">
-                ✏️ Enter Scores
-            </a>
+            @{
+                var endDate2 = Model.Date.AddDays(Model.NumberOfRounds - 1);
+                var isCompleted = DateTime.Today > endDate;
+            }
+
+            @if (!isCompleted)
+            {
+                <a asp-action="EnterScores" asp-route-id="@Model.Id" class="btn-action">
+                    ✏️ Enter Scores
+                </a>
+            }
 
             <a asp-action="Leaderboard" asp-route-id="@Model.Id" class="btn-primary big">
                 🏆 View Leaderboard

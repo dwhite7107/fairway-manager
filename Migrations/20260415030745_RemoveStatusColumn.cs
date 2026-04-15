@@ -4,23 +4,23 @@
 
 namespace FairwayManager.Migrations
 {
-    public partial class RemoveCoursePar : Migration
+    public partial class RemoveStatusColumn : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "CoursePar",
+                name: "Status",
                 table: "Tournaments");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "CoursePar",
+            migrationBuilder.AddColumn<string>(
+                name: "Status",
                 table: "Tournaments",
-                type: "integer",
+                type: "text",
                 nullable: false,
-                defaultValue: 0);
+                defaultValue: "");
         }
     }
 }

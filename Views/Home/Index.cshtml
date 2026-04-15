@@ -1,21 +1,173 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home";
+    var upcoming = ViewBag.UpcomingNearby as List<FairwayManager.Models.Tournament>;
+    var recent = ViewBag.RecentNearby as List<FairwayManager.Models.Tournament>;
+    var hasLocation = ViewBag.HasLocation as bool?;
 }
 
-<div class="text-center mt-5">
-    <h1 class="display-4">Welcome to FairwayManager</h1>
+<!-- 🔥 HERO SECTION -->
+<div class="hero">
+    <div class="hero-overlay">
+        <div class="hero-content text-center">
+            <h1>Run Your Golf Tournament, Effortlessly</h1>
+            <p>Create events, track scores, and follow live leaderboards — all in one place</p>
 
-    <p class="lead mt-3">
-        A platform for creating and managing golf tournaments.
-    </p>
+            <div class="hero-buttons">
+                <a href="/Tournament" class="btn btn-primary-custom">Browse Tournaments</a>
+                <a href="/Identity/Account/Register" class="btn btn-outline-custom">Create Account</a>
+            </div>
+        </div>
+    </div>
+</div>
 
-    <hr class="my-4" />
+<!-- 📍 LOCATION BAR -->
+@if (hasLocation == true)
+{
+    <div class="location-bar text-center">
+        <span class="location-icon">📍</span>
+        <span class="location-text">
+            Showing tournaments near <strong>@ViewBag.City, @ViewBag.State</strong>
+        </span>
+    </div>
+}
 
-    <p>
-        Create tournaments, join events, track scores, and view leaderboards — all in one place.
-    </p>
+<div class="container mt-5">
 
-    <a asp-controller="Tournament" asp-action="Index" class="btn btn-primary mt-3">
-        View Tournaments
-    </a>
+    <!-- 🔥 UPCOMING -->
+    <h3 class="section-title">Upcoming Tournaments</h3>
+
+    <div class="row">
+        @if (upcoming != null && upcoming.Count > 0)
+        {
+            foreach (var t in upcoming)
+            {
+                    var endDate = t.Date.AddDays(t.NumberOfRounds - 1);
+
+                    string status;
+
+                    if (DateTime.Today < t.Date)
+                    {
+                        status = "Upcoming";
+                    }
+                    else if (DateTime.Today <= endDate)
+                    {
+                        status = "In Progress";
+                    }
+                    else
+                    {
+                        status = "Completed";
+                    }
+                
+
+                <div class="col-md-4 mb-4">
+                    <div class="tournament-card">
+                        <div class="card-content">
+                            <h4>@t.Name</h4>
+
+                            @if (!string.IsNullOrEmpty(t.City) && !string.IsNullOrEmpty(t.State))
+                            {
+                                <p class="location">@t.City, @t.State</p>
+                            }
+                            else if (!string.IsNullOrEmpty(t.State))
+                            {
+                                <p class="location">@t.State</p>
+                            }
+
+                            <p class="date">@t.Date.ToString("MMMM dd, yyyy")</p>
+
+                            
+
+                            <!-- 🔥 BUTTON -->
+                            @if (status == "Completed")
+                            {
+                                <a asp-controller="Tournament"
+                                   asp-action="Leaderboard"
+                                   asp-route-id="@t.Id"
+                                   class="btn btn-view">
+                                    View Results
+                                </a>
+                            }
+                            else
+                            {
+                                <a asp-controller="Tournament"
+                                   asp-action="Details"
+                                   asp-route-id="@t.Id"
+                                   class="btn btn-view">
+                                    View Tournament
+                                </a>
+                            }
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No upcoming tournaments nearby.</p>
+        }
+    </div>
+
+    <!-- 🔥 RECENT -->
+    <h3 class="section-title mt-5">Recent Tournaments</h3>
+
+    <div class="row">
+        @if (recent != null && recent.Count > 0)
+        {
+            foreach (var t in recent)
+            {
+                
+                    var endDate = t.Date.AddDays(t.NumberOfRounds - 1);
+
+                    string status;
+
+                    if (DateTime.Today < t.Date)
+                    {
+                        status = "Upcoming";
+                    }
+                    else if (DateTime.Today <= endDate)
+                    {
+                        status = "In Progress";
+                    }
+                    else
+                    {
+                        status = "Completed";
+                    }
+                
+
+                <div class="col-md-4 mb-4">
+                    <div class="tournament-card">
+                        <div class="card-content">
+                            <h4>@t.Name</h4>
+
+                            @if (!string.IsNullOrEmpty(t.City) && !string.IsNullOrEmpty(t.State))
+                            {
+                                <p class="location">@t.City, @t.State</p>
+                            }
+                            else if (!string.IsNullOrEmpty(t.State))
+                            {
+                                <p class="location">@t.State</p>
+                            }
+
+                            <p class="date">@t.Date.ToString("MMMM dd, yyyy")</p>
+
+                            
+
+                            <!-- 🔥 BUTTON -->
+                            <a asp-controller="Tournament"
+                               asp-action="Details"
+                               asp-route-id="@t.Id"
+                               class="btn btn-view">
+                                View Tournament
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No recent tournaments nearby.</p>
+        }
+    </div>
+
 </div>

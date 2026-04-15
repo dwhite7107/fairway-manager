@@ -1,0 +1,48 @@
+@model FairwayManager.Models.Tournament
+
+<div class="container mt-5">
+
+    <!-- HEADER -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Manage Players</h2>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-light">
+            Back
+        </a>
+    </div>
+
+    <h5 class="mb-4 text-muted">@Model.Name</h5>
+
+    <!-- PLAYER GRID -->
+    <div class="row">
+        @foreach (var player in Model.TournamentPlayers)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="player-card">
+
+                    <div class="player-info">
+                        <h5>@player.Player.Name</h5>
+
+                        @if (player.Player.UserId == Model.CreatorId)
+                        {
+                            <span class="creator-badge">Creator</span>
+                        }
+                    </div>
+
+                    @if (player.Player.UserId != Model.CreatorId)
+                    {
+                        <form asp-action="RemovePlayer" method="post">
+                            <input type="hidden" name="tournamentId" value="@Model.Id" />
+                            <input type="hidden" name="playerId" value="@player.Player.Id" />
+
+                            <button type="submit" class="btn btn-danger btn-sm w-100">
+                                Remove Player
+                            </button>
+                        </form>
+                    }
+
+                </div>
+            </div>
+        }
+    </div>
+
+</div>

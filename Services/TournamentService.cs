@@ -23,7 +23,9 @@ namespace FairwayManager.Services
         public async Task<Tournament?> GetTournamentByIdAsync(int id)
         {
             return await _context.Tournaments
-                .FirstOrDefaultAsync(t => t.Id == id);
+            .Include(t => t.TournamentPlayers)
+                .ThenInclude(tp => tp.Player)
+            .FirstOrDefaultAsync(t => t.Id == id);
         }
 
         public async Task CreateTournamentAsync(Tournament tournament)

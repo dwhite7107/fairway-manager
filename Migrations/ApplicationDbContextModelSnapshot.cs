@@ -181,6 +181,9 @@ namespace FairwayManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
                     b.Property<string>("CourseName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -213,6 +216,12 @@ namespace FairwayManager.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -223,8 +232,7 @@ namespace FairwayManager.Migrations
                     b.Property<string>("ScoringType")
                         .HasColumnType("text");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<string>("State")
                         .HasColumnType("text");
 
                     b.HasKey("Id");

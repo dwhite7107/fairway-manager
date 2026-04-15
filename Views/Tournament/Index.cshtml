@@ -19,14 +19,28 @@
         {
             <div class="tournament-card" data-name="@t.Name.ToLower()">
 
-                <div class="card-header">
-                    <h2>@t.Name</h2>
-                    <span class="status-badge @t.Status.ToLower()">
-                        @t.Status
-                    </span>
-                </div>
+                @{
+                    var endDate = t.Date.AddDays(t.NumberOfRounds - 1);
+
+                    string status;
+
+                    if (DateTime.Today < t.Date)
+                        status = "Upcoming";
+                    else if (DateTime.Today <= endDate)
+                        status = "In Progress";
+                    else
+                        status = "Completed";
+                }
+
+                <span class="status-badge @(status.ToLower().Replace(" ", ""))">
+                    @status
+                </span>
 
                 <div class="card-body">
+
+                    <!-- 🔥 TITLE (THIS FIXES YOUR ISSUE) -->
+                    <h4 class="tournament-title">@t.Name</h4>
+
                     <p class="date">
                         @t.Date.ToString("MMMM dd, yyyy")
                     </p>

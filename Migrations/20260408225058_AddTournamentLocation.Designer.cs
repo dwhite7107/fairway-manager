@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FairwayManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260408191053_RemoveHolesTable")]
-    partial class RemoveHolesTable
+    [Migration("20260408225058_AddTournamentLocation")]
+    partial class AddTournamentLocation
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -183,6 +183,9 @@ namespace FairwayManager.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("City")
+                        .HasColumnType("text");
+
                     b.Property<string>("CourseName")
                         .IsRequired()
                         .HasColumnType("text");
@@ -215,6 +218,12 @@ namespace FairwayManager.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<double?>("Latitude")
+                        .HasColumnType("double precision");
+
+                    b.Property<double?>("Longitude")
+                        .HasColumnType("double precision");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
@@ -223,6 +232,9 @@ namespace FairwayManager.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ScoringType")
+                        .HasColumnType("text");
+
+                    b.Property<string>("State")
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
