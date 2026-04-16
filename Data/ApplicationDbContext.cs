@@ -18,6 +18,7 @@ namespace FairwayManager.Data
         public DbSet<Score> Scores { get; set; }
         public DbSet<TournamentHolePar> TournamentHolePars { get; set; }
         public DbSet<TeamScore> TeamScores { get; set; }
+        public DbSet<TournamentActivity> TournamentActivities { get; set; }
 
         // Bridge Tables
         public DbSet<TournamentPlayer> TournamentPlayers { get; set; }

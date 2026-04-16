@@ -90,7 +90,18 @@
             {
                 <tr>
                     <td class="rank">@item.Rank</td>
-                    <td class="player">@item.Name</td>
+                    <td class="player">
+                        @if (item.PlayerId != null)
+                        {
+                            <a href="/Tournament/PlayerProfile/@item.PlayerId" style="color: white; text-decoration: none;">
+                                @item.Name
+                            </a>
+                        }
+                        else
+                        {
+                            @item.Name
+                        }
+                    </td>
                     <td>@item.Thru</td>
                     <td>@item.Total</td>
                     <td class="to-par @(item.ToPar < 0 ? "under" : item.ToPar > 0 ? "over" : "even")">

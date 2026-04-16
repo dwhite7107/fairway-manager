@@ -229,6 +229,7 @@
         <!-- MANAGEMENT -->
         <div class="action-bar">
 
+
             @if (currentUserId == Model.CreatorId)
             {
                 <a asp-action="ManagePlayers" asp-route-id="@Model.Id" class="btn-action">
@@ -262,9 +263,20 @@
             <a asp-action="Leaderboard" asp-route-id="@Model.Id" class="btn-primary big">
                 🏆 View Leaderboard
             </a>
+            <button class="btn-action" onclick="copyTournamentLink()">
+                🔗 Share Tournament
+            </button>
 
         </div>
     }
+    <div class="mt-4">
+        <h4>Activity</h4>
+
+        <div id="activityFeed" class="activity-box">
+            @await Html.PartialAsync("_ActivityFeed", (List<FairwayManager.Models.TournamentActivity>)ViewBag.Activity)
+        </div>
+    </div>
+    
 
     <br />
 
@@ -274,9 +286,37 @@
 
 </div>
 
+@section Scripts {
 <script>
-function copyCode() {
-    const code = document.getElementById("joinCode").innerText;
-    navigator.clipboard.writeText(code);
-}
+    function copyCode() {
+        const code = document.getElementById("joinCode").innerText;
+        navigator.clipboard.writeText(code);
+    }
+
+    function copyTournamentLink() {
+        const url = window.location.href;
+
+        navigator.clipboard.writeText(url).then(() => {
+            alert("Link copied to clipboard!");
+        }).catch(err => {
+            console.error("Failed to copy: ", err);
+        });
+    }
+
+    // 🔥 ADD THIS
+    function loadActivity() {
+        fetch('/Tournament/GetActivity/@Model.Id')
+            .then(res => res.text())
+            .then(html => {
+                document.getElementById("activityFeed").innerHTML = html;
+            })
+            .catch(err => console.error(err));
+    }
+
+    // refresh every 5 seconds
+    setInterval(loadActivity, 5000);
+
+    // load immediately on page load
+    loadActivity();
 </script>
+}

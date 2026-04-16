@@ -861,3 +861,37 @@ label {
         font-size: 2rem;
     }
 }
+
+.activity-box {
+    max-height: 240px;
+    /* height of ~4 items */
+    overflow-y: auto;
+    /* ALWAYS scrollable */
+    background: #f4f6f5;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+/* Scroll on hover */
+.activity-box:hover {
+    overflow-y: auto;
+}
+
+/* Individual activity item */
+.activity-item {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 14px;
+}
+
+/* Timestamp */
+.activity-time {
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 3px;
+}
+
+/* Message */
+.activity-text {
+    font-weight: 500;
+}

@@ -22,7 +22,7 @@
 
         <div class="card p-3">
             <strong>Best Finish</strong>
-            <div>@(ViewBag.BestFinish == 0 ? "-" : ViewBag.BestFinish)</div>
+            <div>@(ViewBag.BestFinish != null ? ViewBag.BestFinish : "-")
         </div>
 
 

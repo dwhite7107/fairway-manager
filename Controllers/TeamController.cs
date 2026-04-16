@@ -76,8 +76,22 @@ namespace FairwayManager.Controllers
             _context.TournamentTeams.Add(tournamentTeam);
 
             await _context.SaveChangesAsync();
+            AddActivity(tournamentId, $"{team.Name} has been created");
 
             return RedirectToAction("Details", "Tournament", new { id = tournamentId });
+        }
+
+        private void AddActivity(int tournamentId, string message)
+        {
+            var activity = new TournamentActivity
+            {
+                TournamentId = tournamentId,
+                Message = message,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.TournamentActivities.Add(activity);
+            _context.SaveChanges();
         }
 
         // ----------------------------
@@ -113,6 +127,13 @@ namespace FairwayManager.Controllers
 
             _context.PlayerTeams.Add(playerTeam);
             await _context.SaveChangesAsync();
+
+            var teamName = await _context.Teams
+                .Where(t => t.Id == teamId)
+                .Select(t => t.Name)
+                .FirstOrDefaultAsync();
+
+            AddActivity(tournamentId, $"{player.Name} joined {teamName}");
 
             return RedirectToAction("Details", "Tournament", new { id = tournamentId });
         }

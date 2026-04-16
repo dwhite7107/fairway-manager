@@ -1,0 +1,44 @@
+@{
+    ViewData["Title"] = "Player Profile";
+}
+
+<h2 class="mb-3">@ViewBag.PlayerName</h2>
+
+<div class="mb-4">
+    <strong>Tournaments Played:</strong> @ViewBag.TournamentsPlayed<br />
+    <strong>Avg To Par:</strong> @ViewBag.AvgToPar<br />
+    <strong>Best Finish:</strong> @(ViewBag.BestFinish == 0 ? "-" : ViewBag.BestFinish)
+</div>
+
+<h4>History</h4>
+
+@if (ViewBag.History.Count == 0)
+{
+    <p>No tournaments yet.</p>
+}
+else
+{
+    <table class="table table-dark table-striped">
+        <thead>
+            <tr>
+                <th>Tournament</th>
+                <th>Course</th>
+                <th>Date</th>
+                <th>Total</th>
+                <th>To Par</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var h in ViewBag.History)
+            {
+                <tr>
+                    <td>@h.TournamentName</td>
+                    <td>@h.Course</td>
+                    <td>@h.Date.ToString("MM/dd/yyyy")</td>
+                    <td>@h.Total</td>
+                    <td>@h.ToPar</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

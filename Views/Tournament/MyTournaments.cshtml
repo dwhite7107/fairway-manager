@@ -1,0 +1,119 @@
+@{
+    ViewData["Title"] = "My Tournaments";
+}
+
+<h2 class="mb-4">My Tournaments</h2>
+
+<style>
+    .tournament-card {
+        background: rgba(255, 255, 255, 0.08);
+        border-radius: 12px;
+        padding: 18px 22px;
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: 0.2s;
+        color: white;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .tournament-card:hover {
+        transform: scale(1.01);
+        background: rgba(255, 255, 255, 0.12);
+    }
+
+    .tournament-info strong {
+        font-size: 1.1rem;
+        color: white;
+    }
+
+    .tournament-info small {
+        color: rgba(255,255,255,0.7);
+    }
+
+    .section-title {
+        margin-top: 30px;
+        margin-bottom: 10px;
+        font-weight: 600;
+        color: white;
+    }
+</style>
+
+<!-- ACTIVE -->
+<div class="section-title">Active</div>
+@if (ViewBag.Active.Count == 0)
+{
+    <p>No active tournaments.</p>
+}
+else
+{
+    @foreach (var t in ViewBag.Active)
+    {
+        <div class="tournament-card">
+            <div class="tournament-info">
+                <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 2px;">
+                    @t.Name
+                </div>
+
+                <div style="font-size: 0.85rem; opacity: 0.8;">
+                    @t.CourseName
+                </div>
+            </div>
+
+            <a href="/Tournament/Leaderboard/@t.Id" class="btn btn-success btn-sm">View</a>
+        </div>
+    }
+}
+
+<!-- UPCOMING -->
+<div class="section-title">Upcoming</div>
+@if (ViewBag.Upcoming.Count == 0)
+{
+    <p>No upcoming tournaments.</p>
+}
+else
+{
+    @foreach (var t in ViewBag.Upcoming)
+    {
+        <div class="tournament-card">
+            <div class="tournament-info">
+                <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 2px;">
+                    @t.Name
+                </div>
+
+                <div style="font-size: 0.85rem; opacity: 0.8;">
+                    @t.CourseName
+                </div>
+            </div>
+
+            <a href="/Tournament/Details/@t.Id" class="btn btn-primary btn-sm">View</a>
+        </div>
+    }
+}
+
+<!-- COMPLETED -->
+<div class="section-title">Completed</div>
+@if (ViewBag.Completed.Count == 0)
+{
+    <p>No completed tournaments.</p>
+}
+else
+{
+    @foreach (var t in ViewBag.Completed)
+    {
+        <div class="tournament-card">
+            <div class="tournament-info">
+                <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 2px;">
+                    @t.Name
+                </div>
+
+                <div style="font-size: 0.85rem; opacity: 0.8;">
+                    @t.CourseName
+                </div>
+            </div>
+
+            <a href="/Tournament/Leaderboard/@t.Id" class="btn btn-secondary btn-sm">Results</a>
+        </div>
+    }
+}

@@ -12,15 +12,17 @@
     <header>
         <nav class="navbar">
             <div class="nav-left">
-                <a class="brand" asp-controller="Home" asp-action="Index">FairwayManager</a>
+                <a class="brand" asp-controller="Home" asp-action="Index">Fairway Manager</a>
 
                 <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
 
                 @if (User.Identity.IsAuthenticated)
                 {
                 <a class="nav-link" asp-controller="Tournament" asp-action="Create">Create Tournament</a>
+                <a class="nav-link" asp-controller="Tournament" asp-action="MyTournaments">My Tournaments</a>
                 <a class="nav-link" asp-controller="Tournament" asp-action="History"> My History</a>
                 <a class="nav-link" asp-controller="Tournament" asp-action="EditProfile">Edit Profile</a>
+
                 }
 
 

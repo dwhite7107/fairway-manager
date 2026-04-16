@@ -72,9 +72,12 @@
                         <label>Hole @i</label>
 
                         <input type="number"
-                               class="form-control scramble-input"
-                               value="@(saved != null ? saved.Strokes : "")"
-                               min="1" />
+                            id="score-team-@tt.Team.Id-@i"
+                            class="form-control scramble-input"
+                            data-team="@tt.Team.Id"
+                            data-hole="@i"
+                            value="@(saved != null ? saved.Strokes : "")"
+                            min="1" />
 
                         <button type="button"
                                 class="btn btn-sm btn-primary mt-1 save-scramble-btn">
@@ -128,8 +131,17 @@ document.querySelectorAll(".save-scramble-btn").forEach(button => {
         })
         .then(res => res.json())
         .then(data => {
-            input.style.border = "2px solid limegreen";
-            updateTeamTotal(teamId);
+            if (data.success) {
+
+                // visual feedback
+                input.style.border = "2px solid limegreen";
+
+                // 🔥 ADD THIS LINE (animation)
+                animatePin(teamId, holeNumber, true);
+
+                // update totals
+                updateTeamTotal(teamId);
+            }
         });
     });
 });
@@ -152,6 +164,35 @@ function updateTeamTotal(teamId) {
 
     const totalDisplay = document.getElementById(`team-total-${teamId}`);
     totalDisplay.innerText = `Total: ${total} | Thru ${count}`;
+}
+
+function animatePin(playerId, holeIndex) {
+    const target = document.getElementById(`score-${playerId}-${holeIndex}`);
+    if (!target) return;
+
+    const pin = document.createElement("div");
+    pin.innerHTML = "⛳";
+    pin.style.position = "fixed";
+    pin.style.fontSize = "24px";
+    pin.style.zIndex = 9999;
+
+    document.body.appendChild(pin);
+
+    const rect = target.getBoundingClientRect();
+
+    pin.style.left = rect.left + "px";
+    pin.style.top = "0px";
+
+    pin.animate([
+        { transform: "translateY(0px)", opacity: 1 },
+        { transform: `translateY(${rect.top}px)`, opacity: 1 },
+        { transform: `translateY(${rect.top + 10}px)`, opacity: 0 }
+    ], {
+        duration: 600,
+        easing: "ease-out"
+    });
+
+    setTimeout(() => pin.remove(), 600);
 }
 
 </script>

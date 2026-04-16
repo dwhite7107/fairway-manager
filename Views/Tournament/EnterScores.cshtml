@@ -57,6 +57,7 @@
                             <label>Hole @i</label>
 
                             <input type="number"
+                                id="score-@tp.Player.Id-@i"
                                 class="form-control score-input"
                                 data-player="@tp.Player.Id"
                                 data-hole="@i"
@@ -197,8 +198,14 @@ document.querySelectorAll(".save-hole-btn").forEach(button => {
         })
         .then(response => {
             if (response.ok) {
+
+                // mark as saved
                 input.classList.add("saved");
 
+                // 🔥 animation trigger
+                animatePin(playerId, hole);
+
+                // update local data
                 let existing = allScores.find(s =>
                     s.playerId === playerId &&
                     s.holeNumber === hole &&
@@ -223,6 +230,35 @@ document.querySelectorAll(".save-hole-btn").forEach(button => {
     });
 });
 
+
+    function animatePin(playerId, holeIndex) {
+        const target = document.getElementById(`score-${playerId}-${holeIndex}`);
+        if (!target) return;
+
+        const pin = document.createElement("div");
+        pin.innerHTML = "⛳";
+        pin.style.position = "fixed";
+        pin.style.fontSize = "24px";
+        pin.style.zIndex = 9999;
+
+        document.body.appendChild(pin);
+
+        const rect = target.getBoundingClientRect();
+
+        pin.style.left = rect.left + "px";
+        pin.style.top = "0px";
+
+        pin.animate([
+            { transform: "translateY(0px)", opacity: 1 },
+            { transform: `translateY(${rect.top}px)`, opacity: 1 },
+            { transform: `translateY(${rect.top + 10}px)`, opacity: 0 }
+        ], {
+            duration: 600,
+            easing: "ease-out"
+        });
+
+        setTimeout(() => pin.remove(), 600);
+    }
 // ✅ THIS MUST BE OUTSIDE EVERYTHING
 loadRoundData();
 
