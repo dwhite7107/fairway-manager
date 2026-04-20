@@ -29,6 +29,21 @@
     font-weight: bold;
     color: white;
 }
+
+<style>
+.gold-row {
+    background: linear-gradient(to right, rgba(212,175,55,0.25), transparent);
+    font-weight: 600;
+}
+
+.silver-row {
+    background: linear-gradient(to right, rgba(192,192,192,0.2), transparent);
+}
+
+.bronze-row {
+    background: linear-gradient(to right, rgba(205,127,50,0.2), transparent);
+}
+
 </style>
 
 <div class="leaderboard-container">
@@ -57,23 +72,25 @@
         </div>
     </div>
 
+@if (ViewBag.TotalRounds > 1)
+{
+    <div class="mb-3">
+        <strong>View:</strong>
 
-<div class="mb-3">
-    <strong>View:</strong>
-
-    <a class="btn btn-sm @(ViewBag.SelectedRound == 0 ? "btn-primary" : "btn-outline-primary")"
-       href="@Url.Action("Leaderboard", new { id = ViewContext.RouteData.Values["id"] })">
-        Total
-    </a>
-
-    @for (int i = 1; i <= (int)ViewBag.TotalRounds; i++)
-    {
-        <a class="btn btn-sm @(ViewBag.SelectedRound == i ? "btn-primary" : "btn-outline-primary")"
-           href="@Url.Action("Leaderboard", new { id = ViewContext.RouteData.Values["id"], round = i })">
-            Round @i
+        <a class="btn btn-sm @(ViewBag.SelectedRound == 0 ? "btn-light" : "btn-outline-light")"
+        href="@Url.Action("Leaderboard", new { id = ViewContext.RouteData.Values["id"] })">
+            Total
         </a>
-    }
-</div>
+
+        @for (int i = 1; i <= (int)ViewBag.TotalRounds; i++)
+        {
+            <a class="btn btn-sm @(ViewBag.SelectedRound == i ? "btn-light" : "btn-outline-light")"
+            href="@Url.Action("Leaderboard", new { id = ViewContext.RouteData.Values["id"], round = i })">
+                Round @i
+            </a>
+        }
+    </div>
+}
 
     <table class="leaderboard-table">
         <thead>
@@ -85,30 +102,8 @@
                 <th>To Par</th>
             </tr>
         </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td class="rank">@item.Rank</td>
-                    <td class="player">
-                        @if (item.PlayerId != null)
-                        {
-                            <a href="/Tournament/PlayerProfile/@item.PlayerId" style="color: white; text-decoration: none;">
-                                @item.Name
-                            </a>
-                        }
-                        else
-                        {
-                            @item.Name
-                        }
-                    </td>
-                    <td>@item.Thru</td>
-                    <td>@item.Total</td>
-                    <td class="to-par @(item.ToPar < 0 ? "under" : item.ToPar > 0 ? "over" : "even")">
-                        @(item.ToPar == 0 ? "E" : item.ToPar > 0 ? "+" + item.ToPar : item.ToPar.ToString())
-                    </td>
-                </tr>
-            }
+        <tbody id="leaderboard-body">
+            @Html.Partial("_LeaderboardRows", Model)
         </tbody>
     </table>
 
@@ -137,3 +132,16 @@
         </a>
     }
 </div>
+
+<script>
+    async function refreshLeaderboard() {
+        const id = window.location.pathname.split("/").pop();
+
+        const response = await fetch(`/Tournament/LeaderboardPartial?id=${id}`);
+        const html = await response.text();
+
+        document.getElementById("leaderboard-body").innerHTML = html;
+    }
+
+    setInterval(refreshLeaderboard, 5000);
+</script>

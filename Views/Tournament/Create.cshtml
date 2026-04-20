@@ -4,9 +4,12 @@
     ViewData["Title"] = "Create Tournament";
 }
 
-<h2>Create Tournament</h2>
+<div class="d-flex justify-content-center mt-5">
+    <div class="card p-4 shadow" style="max-width: 700px; width: 100%; background-color: rgba(10, 40, 20, 0.9); border: 1px solid rgba(255,255,255,0.1);">
 
-<form asp-action="Create" method="post">
+        <h2 class="mb-4 text-white">Create Tournament</h2>
+
+        <form asp-action="Create" method="post">
     <div asp-validation-summary="All" class="text-danger"></div>
 
     <div class="form-group">
@@ -35,8 +38,8 @@
 
     <div id="manualFields" style="display:none;">
         <input type="text" id="manualCourse" class="form-control mb-2" placeholder="Course Name" />
-        <input type="text" name="City" class="form-control mb-2" placeholder="City" />
-        <input type="text" name="State" class="form-control mb-2" placeholder="State" />
+        <input type="text" id="manualCity" class="form-control mb-2" placeholder="City" />
+        <input type="text" id="manualState" class="form-control mb-2" placeholder="State" />
     </div>
 
     <!-- Hidden fields -->
@@ -53,7 +56,7 @@
     </div>
 
     <div class="form-group">
-        <label asp-for="HoleCount"></label>
+        <label asp-for="HoleCount">Hole Count</label>
         <select asp-for="HoleCount" class="form-control">
             <option value="9">9</option>
             <option value="18">18</option>
@@ -91,7 +94,9 @@
     </div>
 
     <br />
-    <button type="submit" class="btn btn-primary">Create Tournament</button>
+    <button type="submit" class="btn" style="background-color: #d4af37; color: black; font-weight: 600;">
+        Create Tournament
+    </button>
 </form>
 
 @section Scripts {
@@ -173,10 +178,17 @@
                     item.onclick = () => {
                         const address = place.address || {};
 
-                        document.getElementById("courseSearch").value = place.display_name;
+                        const parts = place.display_name.split(",");
 
-                        document.getElementById("Course").value = place.display_name;
-                        document.getElementById("City").value = address.city || address.town || address.village || "";
+                        // Set visible input (keep full name for search box if you want)
+                        document.getElementById("courseSearch").value = parts[0].trim();
+
+                        // Store CLEAN data
+                        document.getElementById("Course").value = parts[0].trim();
+                        document.getElementById("City").value = address.city || address.town || address.village || address.hamlet || address.county || "";
+                        document.getElementById("State").value = address.state || "";
+                        
+                        
                         document.getElementById("State").value = address.state || "";
                         document.getElementById("Latitude").value = place.lat;
                         document.getElementById("Longitude").value = place.lon;
@@ -189,13 +201,17 @@
             }
 
             // Manual toggle
-            document.getElementById("manualEntryBtn")?.addEventListener("click", function () {
-                document.getElementById("manualFields").style.display = "block";
+            document.getElementById("manualEntryBtn").addEventListener("click", function () {
+            document.getElementById("manualFields").style.display = "block";
 
-                document.getElementById("Course").value = "";
-                document.getElementById("Latitude").value = "";
-                document.getElementById("Longitude").value = "";
-            });
+            document.getElementById("Course").value = "";
+            document.getElementById("Latitude").value = "";
+            document.getElementById("Longitude").value = "";
+
+            // ✅ NEW: copy manual values into hidden inputs
+            document.getElementById("City").value = document.getElementById("manualCity").value;
+            document.getElementById("State").value = document.getElementById("manualState").value;
+        });
 
         });
     </script>

@@ -33,10 +33,11 @@
         <thead>
             <tr>
                 <th>Tournament</th>
+                <th>Course</th>
                 <th>Date</th>
                 <th>Rank</th>
                 <th>To Par</th>
-                <th>View</th>
+                <th></th>
             </tr>
         </thead>
 
@@ -45,6 +46,21 @@
             {
                 <tr>
                     <td>@item.TournamentName</td>
+
+                    <!-- ✅ NEW COURSE COLUMN -->
+                    <td>
+                        @{
+                            var course = (item.CourseName ?? "").Split(',')[0];
+                        }
+
+                        @course
+
+                        @if (!string.IsNullOrEmpty(item.City) && !string.IsNullOrEmpty(item.State))
+                        {
+                            <span> · @item.City, @item.State</span>
+                        }
+                    </td>
+
                     <td>@item.Date.ToShortDateString()</td>
                     <td>@(item.Rank == 0 ? "-" : item.Rank)</td>
 
@@ -54,8 +70,8 @@
 
                     <td>
                         <a asp-action="Leaderboard"
-                           asp-route-id="@item.TournamentId"
-                           class="btn btn-sm btn-primary">
+                        asp-route-id="@item.TournamentId"
+                        class="btn btn-sm btn-primary">
                             View
                         </a>
                     </td>

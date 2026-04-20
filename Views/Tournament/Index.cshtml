@@ -9,8 +9,20 @@
     </div>
 
     <!-- SEARCH -->
-    <div class="search-container">
-        <input type="text" id="searchInput" placeholder="Search tournaments..." />
+    <div class="search-container d-flex gap-2 mb-4">
+
+        <input type="text"
+            id="searchInput"
+            class="form-control"
+            placeholder="Search tournaments..." />
+
+        <select id="statusFilter" class="form-select" style="max-width: 180px;">
+            <option value="">All Status</option>
+            <option value="Upcoming">Upcoming</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+        </select>
+
     </div>
 
     <!-- GRID -->
@@ -45,6 +57,20 @@
                         @t.Date.ToString("MMMM dd, yyyy")
                     </p>
 
+                    @if (!string.IsNullOrEmpty(t.City) && !string.IsNullOrEmpty(t.State))
+                    {
+                        <p class="location">
+                            @t.CourseName · @t.City, @t.State
+                        </p>
+                    }
+                    else if (!string.IsNullOrEmpty(t.CourseName))
+                    {
+                        <p class="location">
+                            @t.CourseName
+                        </p>
+                    }
+
+
                     <p class="meta">
                         @t.PlayerCount players
                     </p>
@@ -62,21 +88,48 @@
 
 </div>
 
+@section Scripts {
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+
     const searchInput = document.getElementById("searchInput");
+    const statusFilter = document.getElementById("statusFilter");
     const cards = document.querySelectorAll(".tournament-card");
 
-    searchInput.addEventListener("keyup", function () {
-        const value = this.value.toLowerCase();
+    function filterTournaments() {
 
-        cards.forEach(card => {
-            const name = card.getAttribute("data-name");
+    if (!searchInput || !statusFilter) return;
 
-            if (name.includes(value)) {
-                card.style.display = "block";
-            } else {
-                card.style.display = "none";
-            }
-        });
+    const searchValue = searchInput.value.toLowerCase();
+    const statusValue = statusFilter.value.toLowerCase();
+
+    cards.forEach(card => {
+
+        // ✅ RESET FIRST (CRITICAL FIX)
+        card.style.display = "block";
+
+        const name = card.getAttribute("data-name");
+        const status = card.querySelector(".status-badge").innerText.toLowerCase();
+
+        const matchesSearch = name.includes(searchValue);
+        const matchesStatus = !statusValue || status === statusValue;
+
+        if (!(matchesSearch && matchesStatus)) {
+            card.style.display = "none";
+        }
+
     });
+}
+
+    // ONLY attach if elements exist
+    if (searchInput) {
+        searchInput.addEventListener("keyup", filterTournaments);
+    }
+
+    if (statusFilter) {
+        statusFilter.addEventListener("change", filterTournaments);
+    }
+
+});
 </script>
+}

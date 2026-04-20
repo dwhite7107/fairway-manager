@@ -50,12 +50,20 @@
             <div class="info-row">
                 <div class="info-chip">
                     <span>Course</span>
-                    <strong>@Model.CourseName</strong>
+                    @{
+                        var cleanName = Model.CourseName?.Split(',')[0];
+                    }
+
+                    <strong>
+                        @(string.IsNullOrEmpty(Model.City)
+                            ? cleanName
+                            : $"{cleanName} · {Model.City}, {Model.State}")
+                    </strong>
                 </div>
 
                 <div class="info-chip">
                     <span>Date</span>
-                    <strong>@Model.Date.ToString("MMMM dd, yyyy")</strong>
+                    <strong>@Model.Date.ToString("MMM dd, h:mm tt")</strong>
                 </div>
 
                 <div class="info-chip">
@@ -82,9 +90,9 @@
 
         @if (alreadyJoined)
         {
-            <div class="joined-badge">
-                You have joined
-            </div>
+            <span class="badge bg-success px-3 py-2" style="font-size: 0.9rem;">
+                ✓ Joined
+            </span>
         }
     </div>
 
@@ -190,7 +198,9 @@
                         {
                             <div class="team-card">
 
-                                <strong>@tt.Team.Name</strong>
+                                <div style="font-size: 1.2rem; font-weight: 600; color: #d4af37;">
+                                    @tt.Team.Name
+                                </div>
 
                                 <div class="team-players">
                                     @foreach (var pt in tt.Team.PlayerTeams)
@@ -297,7 +307,6 @@
         const url = window.location.href;
 
         navigator.clipboard.writeText(url).then(() => {
-            alert("Link copied to clipboard!");
         }).catch(err => {
             console.error("Failed to copy: ", err);
         });

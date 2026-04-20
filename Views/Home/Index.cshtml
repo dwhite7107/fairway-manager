@@ -73,7 +73,16 @@
                                 <p class="location">@t.State</p>
                             }
 
-                            <p class="date">@t.Date.ToString("MMMM dd, yyyy")</p>
+                            <p class="mb-1">
+                                @t.Date.ToString("MMMM dd, yyyy")
+                            </p>
+
+                            @if (!string.IsNullOrEmpty(t.City) && !string.IsNullOrEmpty(t.State))
+                            {
+                                <p class="text-muted mb-2" style="font-size: 0.9rem;">
+                                    @t.City, @t.State
+                                </p>
+                            }
 
                             
 
@@ -103,7 +112,17 @@
         }
         else
         {
-            <p>No upcoming tournaments nearby.</p>
+            <div class="text-center py-4" style="opacity: 0.85;">
+                <div style="font-size: 2rem;">📍</div>
+
+                <p class="mb-1" style="font-weight: 500;">
+                    No upcoming tournaments nearby
+                </p>
+
+                <p class="text-muted" style="font-size: 0.9rem;">
+                    Check back soon or create one to get started.
+                </p>
+            </div>
         }
     </div>
 

@@ -895,3 +895,63 @@ label {
 .activity-text {
     font-weight: 500;
 }
+
+/* nicer scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1f4d2e;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d4af37;
+    border-radius: 10px;
+}
+
+a {
+    text-decoration: none !important;
+}
+
+a:hover {
+    text-decoration: none !important;
+}
+
+.location {
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-top: -6px;
+    margin-bottom: 8px;
+}
+
+
+
+/* 🥇 GOLD */
+.gold-row {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.35), rgba(255, 215, 0, 0.08));
+    border-left: 5px solid #ffd700;
+    font-weight: 600;
+}
+
+/* 🥈 SILVER */
+.silver-row {
+    background: linear-gradient(90deg, rgba(192, 192, 192, 0.35), rgba(192, 192, 192, 0.08));
+    border-left: 5px solid #c0c0c0;
+}
+
+/* 🥉 BRONZE */
+.bronze-row {
+    background: linear-gradient(90deg, rgba(205, 127, 50, 0.35), rgba(205, 127, 50, 0.08));
+    border-left: 5px solid #cd7f32;
+}
+
+.player-link {
+    color: white !important;
+    text-decoration: none;
+}
+
+.player-link:hover {
+    color: #ffd700;
+    text-decoration: underline;
+}

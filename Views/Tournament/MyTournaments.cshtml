@@ -1,8 +1,13 @@
+
+
 @{
     ViewData["Title"] = "My Tournaments";
 }
 
-<h2 class="mb-4">My Tournaments</h2>
+<div class="d-flex justify-content-center mt-4">
+    <div style="max-width: 900px; width: 100%;">
+
+        <h2 class="mb-4">My Tournaments</h2>
 
 <style>
     .tournament-card {
@@ -40,8 +45,13 @@
     }
 </style>
 
+
 <!-- ACTIVE -->
-<div class="section-title">Active</div>
+<h4 style="color: #d4af37; font-weight: 600; margin-top: 25px;">
+    Active
+</h4>
+<hr style="border-color: rgba(255,255,255,0.1); margin-top: 5px;" />
+
 @if (ViewBag.Active.Count == 0)
 {
     <p>No active tournaments.</p>
@@ -52,13 +62,20 @@ else
     {
         <div class="tournament-card">
             <div class="tournament-info">
+
                 <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 2px;">
                     @t.Name
                 </div>
 
-                <div style="font-size: 0.85rem; opacity: 0.8;">
-                    @t.CourseName
+                <!-- ✅ DATE ADDED -->
+                <div style="font-size: 0.85rem; opacity: 0.7;">
+                    @t.Date.ToString("MMM dd, yyyy")
                 </div>
+
+                <div style="font-size: 0.85rem; opacity: 0.8;">
+                    @(t.CourseName.Split(',')[0]) · @t.City, @t.State
+                </div>
+
             </div>
 
             <a href="/Tournament/Leaderboard/@t.Id" class="btn btn-success btn-sm">View</a>
@@ -67,7 +84,11 @@ else
 }
 
 <!-- UPCOMING -->
-<div class="section-title">Upcoming</div>
+<h4 style="color: #d4af37; font-weight: 600; margin-top: 25px;">
+    Upcoming
+</h4>
+<hr style="border-color: rgba(255,255,255,0.1); margin-top: 5px;" />
+
 @if (ViewBag.Upcoming.Count == 0)
 {
     <p>No upcoming tournaments.</p>
@@ -78,13 +99,20 @@ else
     {
         <div class="tournament-card">
             <div class="tournament-info">
+
                 <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 2px;">
                     @t.Name
                 </div>
 
-                <div style="font-size: 0.85rem; opacity: 0.8;">
-                    @t.CourseName
+                <!-- ✅ DATE ADDED -->
+                <div style="font-size: 0.85rem; opacity: 0.7;">
+                    @t.Date.ToString("MMM dd, yyyy")
                 </div>
+
+                <div style="font-size: 0.85rem; opacity: 0.8;">
+                    @(t.CourseName.Split(',')[0]) · @t.City, @t.State
+                </div>
+
             </div>
 
             <a href="/Tournament/Details/@t.Id" class="btn btn-primary btn-sm">View</a>
@@ -93,7 +121,11 @@ else
 }
 
 <!-- COMPLETED -->
-<div class="section-title">Completed</div>
+<h4 style="color: #d4af37; font-weight: 600; margin-top: 25px;">
+    Completed
+</h4>
+<hr style="border-color: rgba(255,255,255,0.1); margin-top: 5px;" />
+
 @if (ViewBag.Completed.Count == 0)
 {
     <p>No completed tournaments.</p>
@@ -104,16 +136,25 @@ else
     {
         <div class="tournament-card">
             <div class="tournament-info">
+
                 <div style="font-weight: 600; font-size: 1.1rem; margin-bottom: 2px;">
                     @t.Name
                 </div>
 
-                <div style="font-size: 0.85rem; opacity: 0.8;">
-                    @t.CourseName
+                <!-- ✅ DATE ADDED -->
+                <div style="font-size: 0.85rem; opacity: 0.7;">
+                    @t.Date.ToString("MMM dd, yyyy")
                 </div>
+
+                <div style="font-size: 0.85rem; opacity: 0.8;">
+                    @(t.CourseName.Split(',')[0]) · @t.City, @t.State
+                </div>
+
             </div>
 
             <a href="/Tournament/Leaderboard/@t.Id" class="btn btn-secondary btn-sm">Results</a>
         </div>
     }
 }
+    </div>
+</div>

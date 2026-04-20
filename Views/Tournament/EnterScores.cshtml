@@ -9,26 +9,19 @@
 <h2>Enter Scores - @Model.Name</h2>
 
 
-<div class="mb-3">
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
-        Back to Tournament
-    </a>
 
-    <a asp-action="Leaderboard" asp-route-id="@Model.Id" class="btn btn-info">
-        View Leaderboard
-    </a>
+<div class="mb-3">
+    <strong style="color:#d4af37;">Round:</strong>
+
+    @for (int i = 1; i <= Model.NumberOfRounds; i++)
+    {
+        <a href="@Url.Action("EnterScores", new { id = Model.Id, round = i })"
+           class="btn btn-sm @(ViewBag.CurrentRound == i ? "btn-light" : "btn-outline-light")">
+            @("Round " + i)
+        </a>
+    }
 </div>
 
-<!-- ✅ NEW: Round Selector -->
-<div class="mb-3">
-    <label for="roundSelect"><strong>Select Round:</strong></label>
-    <select id="roundSelect" class="form-control" style="max-width:200px;">
-        @for (int r = 1; r <= Model.NumberOfRounds; r++)
-        {
-            <option value="@r">Round @r</option>
-        }
-    </select>
-</div>
 
 @if (tournamentPlayers != null && tournamentPlayers.Any())
 {
@@ -37,38 +30,48 @@
     foreach (var tp in tournamentPlayers.Where(tp => tp.Player.UserId == currentUserId))
     {
         <div class="card mb-3">
-            <div class="card-header">
-                <strong>@tp.Player.Name</strong>
-            </div>
+            
 
             <div class="card-body">
 
                 <div class="mb-2">
-                    <strong>Total:</strong> 
-                    <span class="player-total" data-player="@tp.Player.Id">0</span> |
-                    <strong>Thru:</strong> 
-                    <span class="player-thru" data-player="@tp.Player.Id">0</span>
+                    <div style="font-size: 1.5rem; font-weight: 600;">
+                        @tp.Player.Name
+                    </div>
+
+                    <div style="font-size: 1.2rem; opacity: 0.9;">
+                        Total: <span class="player-total" data-player="@tp.Player.Id">0</span> |
+                        Thru: <span class="player-thru" data-player="@tp.Player.Id">0</span>
+                    </div>
                 </div>
 
                 <div class="row">
                     @for (int i = 1; i <= Model.HoleCount; i++)
                     {
+                        
+                            var saved = scores.FirstOrDefault(s =>
+                                s.PlayerId == tp.Player.Id &&
+                                s.HoleNumber == i &&
+                                s.RoundNumber == ViewBag.CurrentRound
+                            );
+                        
+
                         <div class="col-md-2 mb-2">
                             <label>Hole @i</label>
 
                             <input type="number"
-                                id="score-@tp.Player.Id-@i"
+                                id="score-@tp.Player.Id-@(i)"
                                 class="form-control score-input"
                                 data-player="@tp.Player.Id"
-                                data-hole="@i"
+                                data-hole="@(i)"
                                 data-round="@ViewBag.CurrentRound"
-                                value=""
+                                value="@(saved != null ? saved.Strokes : "")"
                                 min="1" />
 
                             <button type="button"
                                     class="btn btn-sm btn-primary mt-1 save-hole-btn"
                                     data-player="@tp.Player.Id"
-                                    data-hole="@i"
+                                    data-hole="@(i)"
                                     data-round="@ViewBag.CurrentRound">
                                 Save
                             </button>
@@ -79,6 +82,18 @@
             </div>
         </div>
     }
+
+    <div class="d-flex gap-2 mt-4">
+        <a href="/Tournament/Details/@Model.Id"
+        class="btn btn-outline-light">
+            ← Back to Tournament
+        </a>
+
+        <a href="/Tournament/Leaderboard/@Model.Id"
+        class="btn btn-primary">
+            View Leaderboard
+        </a>
+    </div>
 }
 
 @section Scripts {
@@ -96,12 +111,16 @@
 
         console.log("ALL SCORES:", allScores);
 
-        let currentRound = parseInt('@ViewBag.CurrentRound');
+        let currentRound = parseInt(@ViewBag.CurrentRound) || 1;
 
-        document.getElementById("roundSelect").addEventListener("change", function () {
-            currentRound = parseInt(this.value);
-            loadRoundData();
-        });
+        const roundSelect = document.getElementById("roundSelect");
+
+        if (roundSelect) {
+            roundSelect.addEventListener("change", function () {
+                currentRound = parseInt(this.value);
+                loadRoundData();
+            });
+        }
 
         function updateTotals(playerId) {
             let inputs = document.querySelectorAll(`.score-input[data-player='${playerId}']`);
@@ -177,12 +196,23 @@ document.querySelectorAll(".save-hole-btn").forEach(button => {
 
         let playerId = parseInt(this.dataset.player);
         let hole = parseInt(this.dataset.hole);
-        let round = currentRound;
+        let round = currentRound || 1;
 
-        let input = document.querySelector(`.score-input[data-player='${playerId}'][data-hole='${hole}']`);
-        let strokes = input.value;
+        let input = document.getElementById(`score-${playerId}-${hole}`);
+        if (!input) return;
+
+        let strokes = parseInt(input.value);
+
+
+        console.log("INPUT VALUE:", input.value);
+        console.log("PARSED:", strokes);
+        if (isNaN(strokes)) {
+            console.error("Invalid strokes");
+            return;
+        }
 
         console.log("SAVING:", playerId, hole, strokes, round);
+
         fetch('/Tournament/SaveHoleScore', {
             method: 'POST',
             headers: {
@@ -193,19 +223,16 @@ document.querySelectorAll(".save-hole-btn").forEach(button => {
                 playerId: playerId,
                 holeNumber: hole,
                 strokes: strokes,
-                roundNumber: parseInt(round)
+                roundNumber: round
             })
         })
         .then(response => {
             if (response.ok) {
 
-                // mark as saved
                 input.classList.add("saved");
 
-                // 🔥 animation trigger
                 animatePin(playerId, hole);
 
-                // update local data
                 let existing = allScores.find(s =>
                     s.playerId === playerId &&
                     s.holeNumber === hole &&
@@ -213,17 +240,15 @@ document.querySelectorAll(".save-hole-btn").forEach(button => {
                 );
 
                 if (existing) {
-                    existing.strokes = parseInt(strokes);
+                    existing.strokes = strokes;
                 } else {
                     allScores.push({
-                        playerId: parseInt(playerId),
-                        holeNumber: parseInt(hole),
-                        strokes: parseInt(strokes),
-                        roundNumber: parseInt(round)
+                        playerId: playerId,
+                        holeNumber: hole,
+                        strokes: strokes,
+                        roundNumber: round
                     });
                 }
-
-                updateTotals(playerId);
             }
         });
 

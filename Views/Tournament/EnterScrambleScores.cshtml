@@ -12,27 +12,19 @@
 
 <h2>Enter Scramble Scores - @Model.Name</h2>
 
-<div style="display:flex; gap:10px; margin-bottom:20px;">
-    <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-light">
-        ← Back to Tournament
-    </a>
-
-    <a asp-action="Leaderboard" asp-route-id="@Model.Id" class="btn btn-success">
-        🏆 View Leaderboard
-    </a>
-</div>
 
 <div class="mb-3">
-    <label><strong>Select Round:</strong></label>
-    <select id="roundSelect" class="form-control" style="width:200px;">
-        @for (int r = 1; r <= Model.NumberOfRounds; r++)
-        {
-            <option value="@r" selected="@(r == currentRound)">
-                Round @r
-            </option>
-        }
-    </select>
+    <strong style="color:#d4af37;">Round:</strong>
+
+    @for (int i = 1; i <= Model.NumberOfRounds; i++)
+    {
+        <a href="@Url.Action("EnterScrambleScores", new { id = Model.Id, round = i })"
+           class="btn btn-sm @(ViewBag.CurrentRound == i ? "btn-light" : "btn-outline-light")">
+            @("Round " + i)
+        </a>
+    }
 </div>
+
 
 @foreach (var tt in Model.TournamentTeams)
 {
@@ -57,7 +49,9 @@
         <div class="card-body">
 
             <div class="mb-3">
-                <h5 id="team-total-@tt.Team.Id">Total: @total | Thru @holesPlayed</h5>
+                <div style="font-size: 1.2rem; opacity: 0.9;">
+                    Total: @total | Thru: @holesPlayed
+                </div>
             </div>
 
             <div class="row">
@@ -67,7 +61,7 @@
 
                     <div class="col-2 mb-2 hole-container"
                          data-team="@tt.Team.Id"
-                         data-hole="@i">
+                        data-hole="@(i)">
 
                         <label>Hole @i</label>
 
@@ -75,12 +69,14 @@
                             id="score-team-@tt.Team.Id-@i"
                             class="form-control scramble-input"
                             data-team="@tt.Team.Id"
-                            data-hole="@i"
+                            data-hole="@(i)"
                             value="@(saved != null ? saved.Strokes : "")"
                             min="1" />
 
                         <button type="button"
-                                class="btn btn-sm btn-primary mt-1 save-scramble-btn">
+                            class="btn btn-sm btn-primary mt-1 save-scramble-btn"
+                            data-team="@tt.Team.Id"
+                            data-hole="@(i)">
                             Save
                         </button>
                     </div>
@@ -90,6 +86,18 @@
         </div>
     </div>
 }
+
+<div class="d-flex gap-2 mt-4">
+        <a href="/Tournament/Details/@Model.Id"
+        class="btn btn-outline-light">
+            ← Back to Tournament
+        </a>
+
+        <a href="/Tournament/Leaderboard/@Model.Id"
+        class="btn btn-primary">
+            View Leaderboard
+        </a>
+    </div>
 
 @section Scripts {
 <script>
