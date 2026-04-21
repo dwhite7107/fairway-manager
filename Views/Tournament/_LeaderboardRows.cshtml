@@ -1,21 +1,37 @@
 @foreach (var item in Model)
 {
-    <tr class="
-        @(item.Rank == 1 ? "gold-row" :
-          item.Rank == 2 ? "silver-row" :
-          item.Rank == 3 ? "bronze-row" : "")
-    ">
+    <tr class="@(item.Rank == 1 ? "gold-row" :
+                item.Rank == 2 ? "silver-row" :
+                item.Rank == 3 ? "bronze-row" : "")">
+
         <td>@item.Rank</td>
+
         <td>
-            <a asp-controller="Tournament"
-            asp-action="PlayerProfile"
-            asp-route-id="@item.PlayerId"
-            class="player-link">
-                @item.Name
-            </a>
+            @if (item.PlayerId != null && item.PlayerId > 0)
+            {
+                <a asp-controller="Tournament"
+                asp-action="PlayerProfile"
+                asp-route-id="@item.PlayerId"
+                class="player-link"
+                style="color: white; text-decoration: none;">
+                    @item.Name
+                </a>
+            }
+            else
+            {
+                <span>@item.Name</span>
+            }
         </td>
+
         <td>@((item.Thru ?? "").Replace("Thru ", ""))</td>
+
         <td>@item.Total</td>
-        <td>@(item.ToPar == 0 ? "E" : item.ToPar > 0 ? "+" + item.ToPar : item.ToPar)</td>
+
+        <td>
+            @(item.ToPar == 0 ? "E" :
+            item.ToPar > 0 ? "+" + item.ToPar :
+            item.ToPar)
+        </td>
+
     </tr>
 }

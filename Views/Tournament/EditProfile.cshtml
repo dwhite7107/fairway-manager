@@ -63,7 +63,7 @@
 
             <div id="courseResults" class="list-group mt-2"></div>
 
-            <input type="hidden" asp-for="HomeCourse" id="Course" />
+            <input type="hidden" asp-for="HomeCourse" id="HomeCourse" />
             <input type="hidden" id="City" name="City" />
             <input type="hidden" id="State" name="State" />
             <input type="hidden" id="Latitude" name="Latitude" />
@@ -97,54 +97,84 @@
     </div>
 </div>
 
+@section Scripts {
 <script>
 const searchInput = document.getElementById("courseSearch");
 const resultsDiv = document.getElementById("courseResults");
 
-searchInput.addEventListener("input", async function () {
-    const query = this.value;
+console.log("SCRIPT LOADED");
 
-    if (query.length < 3) {
-        resultsDiv.innerHTML = "";
-        return;
-    }
+if (!searchInput) {
+    console.log("Input not found");
+} else {
 
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`;
+    let debounceTimer;
 
-    const response = await fetch(url);
-    const data = await response.json();
+    searchInput.addEventListener("input", function () {
+        const query = this.value;
 
-    displayResults(data);
-});
+        clearTimeout(debounceTimer);
 
-function displayResults(data) {
-    resultsDiv.innerHTML = "";
+        debounceTimer = setTimeout(async () => {
 
-    if (data.length === 0) {
-        resultsDiv.innerHTML = `<div class="list-group-item">No results found</div>`;
-        return;
-    }
+            if (query.length < 3) {
+                resultsDiv.innerHTML = "";
+                return;
+            }
 
-    data.forEach(place => {
-        const item = document.createElement("a");
-        item.classList.add("list-group-item", "list-group-item-action");
-        item.textContent = place.display_name;
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`;
 
-        item.onclick = () => {
-            const address = place.address || {};
+                const response = await fetch(url, {
+                    headers: {
+                        "Accept": "application/json"
+                    }
+                });
 
-            document.getElementById("courseSearch").value = place.display_name;
-            document.getElementById("Course").value = place.display_name;
-            document.getElementById("City").value =
-                address.city || address.town || address.village || address.hamlet || address.county || "";
-            document.getElementById("State").value = address.state || "";
-            document.getElementById("Latitude").value = place.lat;
-            document.getElementById("Longitude").value = place.lon;
+                const data = await response.json();
 
-            resultsDiv.innerHTML = "";
-        };
+                displayResults(data);
 
-        resultsDiv.appendChild(item);
+            } catch (err) {
+                console.error("Fetch failed:", err);
+            }
+
+        }, 500);
     });
+
+    function displayResults(data) {
+        resultsDiv.innerHTML = "";
+
+        if (data.length === 0) {
+            resultsDiv.innerHTML = `<div class="list-group-item">No results found</div>`;
+            return;
+        }
+
+        data.forEach(place => {
+            const item = document.createElement("a");
+            item.classList.add("list-group-item", "list-group-item-action");
+            item.textContent = place.display_name;
+
+            item.onclick = () => {
+                const address = place.address || {};
+
+                document.getElementById("courseSearch").value = place.display_name;
+                document.getElementById("HomeCourse").value = place.display_name;
+
+                document.getElementById("City").value =
+                    address.city || address.town || address.village || address.hamlet || address.county || "";
+
+                document.getElementById("State").value = address.state || "";
+                document.getElementById("Latitude").value = place.lat;
+                document.getElementById("Longitude").value = place.lon;
+
+                resultsDiv.innerHTML = "";
+            };
+
+            resultsDiv.appendChild(item);
+        });
+    }
+
 }
 </script>
+}

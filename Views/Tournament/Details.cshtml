@@ -80,7 +80,11 @@
 
                 <div class="info-chip">
                     <span>Format</span>
-                    <strong>@Model.ScoringType</strong>
+                    <strong>
+                        @(Model.ScoringType == "BestBall" ? "Best Ball" :
+                        Model.ScoringType == "StrokePlay" ? "Stroke Play" :
+                        Model.ScoringType)
+                    </strong>
                 </div>
 
 

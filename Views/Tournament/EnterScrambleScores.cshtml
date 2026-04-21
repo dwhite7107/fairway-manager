@@ -23,6 +23,7 @@
             @("Round " + i)
         </a>
     }
+    <input type="hidden" id="roundSelect" value="@currentRound" />
 </div>
 
 
@@ -38,8 +39,13 @@
         .Where(s => s.TeamId == tt.Team.Id && s.RoundNumber == currentRound)
         .ToList() ?? new List<FairwayManager.Models.TeamScore>();
 
-    int total = teamScores.Sum(s => s.Strokes);
-    int holesPlayed = teamScores.Count;
+    int total = teamScores
+        .Where(s => s.RoundNumber == currentRound)
+        .Sum(s => s.Strokes);
+
+    int holesPlayed = teamScores
+        .Where(s => s.RoundNumber == currentRound)
+        .Count();
 
     <div class="card mb-4">
         <div class="card-header">
@@ -49,7 +55,7 @@
         <div class="card-body">
 
             <div class="mb-3">
-                <div style="font-size: 1.2rem; opacity: 0.9;">
+                <div id="team-total-@tt.Team.Id">
                     Total: @total | Thru: @holesPlayed
                 </div>
             </div>
@@ -57,7 +63,11 @@
             <div class="row">
                 @for (int i = 1; i <= Model.HoleCount; i++)
                 {
-                    var saved = teamScores.FirstOrDefault(s => s.HoleNumber == i);
+                    var saved = teamScores.FirstOrDefault(s =>
+                        s.TeamId == tt.Team.Id &&
+                        s.HoleNumber == i &&
+                        s.RoundNumber == currentRound
+                    );
 
                     <div class="col-2 mb-2 hole-container"
                          data-team="@tt.Team.Id"
@@ -66,7 +76,7 @@
                         <label>Hole @i</label>
 
                         <input type="number"
-                            id="score-team-@tt.Team.Id-@i"
+                            
                             class="form-control scramble-input"
                             data-team="@tt.Team.Id"
                             data-hole="@(i)"
@@ -99,27 +109,35 @@
         </a>
     </div>
 
+
+
 @section Scripts {
 <script>
 
 // ✅ ROUND SWITCH (clean redirect)
-document.getElementById("roundSelect").addEventListener("change", function () {
-    const round = this.value;
-    const tournamentId = @Model.Id;
+const roundSelect = document.getElementById("roundSelect");
 
-    window.location.href = `/Tournament/EnterScrambleScores/${tournamentId}?round=${round}`;
-});
+if (roundSelect) {
+    roundSelect.addEventListener("change", function () {
+        const round = this.value;
+        const tournamentId = @Model.Id;
+
+        window.location.href = `/Tournament/EnterScrambleScores/${tournamentId}?round=${round}`;
+    });
+}
 
 
 // ✅ SAVE HOLE (NO REFRESH)
 document.querySelectorAll(".save-scramble-btn").forEach(button => {
     button.addEventListener("click", function () {
 
+        console.log("SAVE CLICKED");
+
         const container = this.closest(".hole-container");
 
         const teamId = container.dataset.team;
         const holeNumber = container.dataset.hole;
-        const roundNumber = document.getElementById("roundSelect").value;
+        const roundNumber = document.getElementById("roundSelect")?.value || 1;
 
         const input = container.querySelector("input");
         const strokes = input.value;
@@ -137,22 +155,26 @@ document.querySelectorAll(".save-scramble-btn").forEach(button => {
                 roundNumber: roundNumber
             })
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) throw new Error("Request failed");
+            return res.json();
+        })
         .then(data => {
             if (data.success) {
 
                 // visual feedback
                 input.style.border = "2px solid limegreen";
 
-                // 🔥 ADD THIS LINE (animation)
-                animatePin(teamId, holeNumber, true);
+                // animation
+                animatePin(teamId, holeNumber);
 
                 // update totals
                 updateTeamTotal(teamId);
             }
-        });
+        })
+        .catch(err => console.error("ERROR:", err));
+        })
     });
-});
 
 
 // ✅ LIVE TOTAL UPDATE (matches other modes)

@@ -320,6 +320,7 @@ namespace FairwayManager.Controllers
 
             return View(player);
         }
+
         [HttpPost]
         public IActionResult EditProfile(Player updatedPlayer)
         {
@@ -657,13 +658,20 @@ namespace FairwayManager.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveScrambleHole(int tournamentId, int teamId, int holeNumber, int strokes, int roundNumber)
+        public IActionResult SaveScrambleHole(
+            int tournamentId,
+            int teamId,
+            int holeNumber,
+            int strokes,
+            int roundNumber)
         {
             var existing = _context.TeamScores.FirstOrDefault(s =>
                 s.TournamentId == tournamentId &&
                 s.TeamId == teamId &&
                 s.HoleNumber == holeNumber &&
                 s.RoundNumber == roundNumber);
+
+            bool isNewEntry = existing == null;
 
             if (existing != null)
             {
@@ -683,37 +691,55 @@ namespace FairwayManager.Controllers
 
             _context.SaveChanges();
 
-            // 🔥 GET PLAYER NAME (who submitted)
-            var playerName = _context.Players
-                .FirstOrDefault(p => p.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
-                ?.Name;
+            // 🔥 GET TEAM NAME
+            var teamName = _context.Teams
+                .Where(t => t.Id == teamId)
+                .Select(t => t.Name)
+                .FirstOrDefault();
 
-            // 🔥 GET TOTAL HOLES IN TOURNAMENT
+            // 🔥 GET PAR FOR THIS HOLE
+            var par = _context.TournamentHolePars
+                .Where(p => p.TournamentId == tournamentId && p.HoleNumber == holeNumber)
+                .Select(p => p.Par)
+                .FirstOrDefault();
+
+            // 🔥 ONLY LOG SPECIAL SHOTS IF THIS IS A NEW ENTRY
+            if (isNewEntry)
+            {
+                if (strokes == 1)
+                {
+                    AddActivity(tournamentId, $"🔥 {teamName} made a Hole-in-One on hole {holeNumber}!");
+                }
+                else if (strokes == par - 2)
+                {
+                    AddActivity(tournamentId, $"🦅 {teamName} made an Eagle on hole {holeNumber}");
+                }
+                else if (strokes == par - 1)
+                {
+                    AddActivity(tournamentId, $"🐦 {teamName} made a Birdie on hole {holeNumber}");
+                }
+            }
+
+            // 🔥 ROUND COMPLETION LOGIC
             var totalHoles = _context.Tournaments
                 .Where(t => t.Id == tournamentId)
                 .Select(t => t.HoleCount)
                 .FirstOrDefault();
 
-            // 🔥 COUNT HOW MANY HOLES THIS TEAM HAS ENTERED FOR THIS ROUND
             var holesEntered = _context.TeamScores
-                .Count(s => s.TournamentId == tournamentId
-                        && s.TeamId == teamId
-                        && s.RoundNumber == roundNumber);
+                .Count(s =>
+                    s.TournamentId == tournamentId &&
+                    s.TeamId == teamId &&
+                    s.RoundNumber == roundNumber);
 
             if (holesEntered == totalHoles)
             {
-                var teamName = _context.Teams
-                    .Where(t => t.Id == teamId)
-                    .Select(t => t.Name)
-                    .FirstOrDefault();
-
                 AddActivity(tournamentId, $"{teamName} has finished round {roundNumber}");
             }
-        
-            
 
             return Json(new { success = true });
         }
+        
 
         public IActionResult History()
         {
@@ -1543,7 +1569,6 @@ namespace FairwayManager.Controllers
 
         // SAVE TEAM SCORES
         [HttpPost]
-        [ValidateAntiForgeryToken]
         public IActionResult SaveScrambleScores(int TournamentId, int TeamId, Dictionary<int, int> Scores)
         {
             foreach (var hole in Scores)
