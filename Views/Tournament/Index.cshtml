@@ -16,12 +16,30 @@
             class="form-control"
             placeholder="Search tournaments..." />
 
-        <select id="statusFilter" class="form-select" style="max-width: 180px;">
-            <option value="">All Status</option>
-            <option value="Upcoming">Upcoming</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Completed">Completed</option>
-        </select>
+        @{
+            var selectedStatus = Context.Request.Query["statusFilter"].ToString();
+        }
+        <form method="get">
+            <select name="statusFilter" class="form-select" style="min-width: 200px;" onchange="this.form.submit()">
+
+                <option value="" selected="@(string.IsNullOrEmpty(selectedStatus))">
+                    All Status
+                </option>
+
+                <option value="Upcoming" selected="@(selectedStatus == "Upcoming")">
+                    Upcoming
+                </option>
+
+                <option value="In Progress" selected="@(selectedStatus == "In Progress")">
+                    In Progress
+                </option>
+
+                <option value="Completed" selected="@(selectedStatus == "Completed")">
+                    Completed
+                </option>
+
+            </select>
+        </form>
 
     </div>
 
@@ -84,6 +102,34 @@
 
             </div>
         }
+
+        <div class="pagination-bar mt-4">
+
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <a class="btn btn-outline-light pagination-btn"
+                asp-action="Index"
+                asp-route-page="@(ViewBag.CurrentPage - 1)"
+                asp-route-statusFilter="@Context.Request.Query["statusFilter"]">
+                    ← Previous
+                </a>
+            }
+
+            <span class="pagination-text">
+                Page @ViewBag.CurrentPage of @ViewBag.TotalPages
+            </span>
+
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <a class="btn btn-outline-light pagination-btn"
+                asp-action="Index"
+                asp-route-page="@(ViewBag.CurrentPage + 1)"
+                asp-route-statusFilter="@Context.Request.Query["statusFilter"]">
+                    Next →
+                </a>
+            }
+
+        </div>
     </div>
 
 </div>
@@ -93,42 +139,23 @@
 document.addEventListener("DOMContentLoaded", function () {
 
     const searchInput = document.getElementById("searchInput");
-    const statusFilter = document.getElementById("statusFilter");
     const cards = document.querySelectorAll(".tournament-card");
 
-    function filterTournaments() {
+    if (!searchInput) return;
 
-    if (!searchInput || !statusFilter) return;
+    searchInput.addEventListener("input", function () {
+        const query = this.value.toLowerCase();
 
-    const searchValue = searchInput.value.toLowerCase();
-    const statusValue = statusFilter.value.toLowerCase();
+        cards.forEach(card => {
+            const name = card.getAttribute("data-name");
 
-    cards.forEach(card => {
-
-        // ✅ RESET FIRST (CRITICAL FIX)
-        card.style.display = "block";
-
-        const name = card.getAttribute("data-name");
-        const status = card.querySelector(".status-badge").innerText.toLowerCase();
-
-        const matchesSearch = name.includes(searchValue);
-        const matchesStatus = !statusValue || status === statusValue;
-
-        if (!(matchesSearch && matchesStatus)) {
-            card.style.display = "none";
-        }
-
+            if (name && name.includes(query)) {
+                card.style.display = "";
+            } else {
+                card.style.display = "none";
+            }
+        });
     });
-}
-
-    // ONLY attach if elements exist
-    if (searchInput) {
-        searchInput.addEventListener("keyup", filterTournaments);
-    }
-
-    if (statusFilter) {
-        statusFilter.addEventListener("change", filterTournaments);
-    }
 
 });
 </script>

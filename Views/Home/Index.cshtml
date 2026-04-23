@@ -77,14 +77,7 @@
                                 @t.Date.ToString("MMMM dd, yyyy")
                             </p>
 
-                            @if (!string.IsNullOrEmpty(t.City) && !string.IsNullOrEmpty(t.State))
-                            {
-                                <p class="text-muted mb-2" style="font-size: 0.9rem;">
-                                    @t.City, @t.State
-                                </p>
-                            }
-
-                            
+  
 
                             <!-- 🔥 BUTTON -->
                             @if (status == "Completed")

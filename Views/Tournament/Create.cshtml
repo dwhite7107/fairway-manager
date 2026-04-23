@@ -24,6 +24,11 @@
     </div>
 
     <div class="mb-3">
+        <label class="form-label">Qualifications</label>
+        <input asp-for="Qualifications" class="form-control" placeholder="e.g. Invite only, 10 handicap or lower, etc." />
+    </div>
+
+    <div class="mb-3">
         <label class="form-label">Course</label>
         <input type="text" id="courseSearch" class="form-control" autocomplete="off" placeholder="Start typing course name..." />
         
@@ -31,6 +36,8 @@
 
         <small class="text-muted">Select a course from the list or enter manually</small>
     </div>
+
+    
 
     <button type="button" id="manualEntryBtn" class="btn btn-link p-0 mb-3">
         Course not listed? Enter manually
@@ -105,7 +112,7 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            // ===== EXISTING CODE =====
+            // ===== EVENT TYPE TOGGLE =====
             const eventType = document.getElementById("eventTypeDropdown");
             const scoringSection = document.getElementById("scoringTypeSection");
 
@@ -120,18 +127,29 @@
             toggleScoring();
             eventType.addEventListener("change", toggleScoring);
 
-            document.getElementById("manualEntryBtn")?.addEventListener("click", function () {
+            // ===== MANUAL ENTRY TOGGLE =====
+            document.getElementById("manualEntryBtn").addEventListener("click", function () {
                 document.getElementById("manualFields").style.display = "block";
 
-                const manualInput = document.getElementById("manualCourse");
-
-                manualInput.addEventListener("input", function () {
-                    document.getElementById("Course").value = this.value;
-                });
+                document.getElementById("Course").value = "";
+                document.getElementById("City").value = "";
+                document.getElementById("State").value = "";
+                document.getElementById("Latitude").value = "";
+                document.getElementById("Longitude").value = "";
             });
 
+            // ===== LIVE SYNC: manual inputs → hidden fields =====
+            document.getElementById("manualCourse").addEventListener("input", function () {
+                document.getElementById("Course").value = this.value;
+            });
+            document.getElementById("manualCity").addEventListener("input", function () {
+                document.getElementById("City").value = this.value;
+            });
+            document.getElementById("manualState").addEventListener("input", function () {
+                document.getElementById("State").value = this.value;
+            });
 
-            // ===== NEW NOMINATIM CODE =====
+            // ===== NOMINATIM AUTOCOMPLETE =====
             let timeout = null;
             const cache = {};
 
@@ -152,12 +170,23 @@
                             return;
                         }
 
-                        fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&addressdetails=1&limit=5`)
-                            .then(res => res.json())
-                            .then(data => {
-                                cache[query] = data;
-                                displayResults(data);
+                        fetch(`https://nominatim.openstreetmap.org/search?` +
+                            `q=${encodeURIComponent(query)}&` +
+                            `format=json&` +
+                            `limit=5&` +
+                            `addressdetails=1&` +
+                            `extratags=1`)
+                        .then(res => res.json())
+                        .then(data => {
+                            const filtered = data.filter(place => {
+                                const name = place.display_name.toLowerCase();
+                                const golfKeywords = ["golf", "country club", "golf club", "national", "links", "resort", "course"];
+                                return golfKeywords.some(keyword => name.includes(keyword));
                             });
+
+                            cache[query] = filtered;
+                            displayResults(filtered);
+                        });
                     }, 500);
                 });
             }
@@ -177,18 +206,11 @@
 
                     item.onclick = () => {
                         const address = place.address || {};
-
                         const parts = place.display_name.split(",");
 
-                        // Set visible input (keep full name for search box if you want)
                         document.getElementById("courseSearch").value = parts[0].trim();
-
-                        // Store CLEAN data
                         document.getElementById("Course").value = parts[0].trim();
                         document.getElementById("City").value = address.city || address.town || address.village || address.hamlet || address.county || "";
-                        document.getElementById("State").value = address.state || "";
-                        
-                        
                         document.getElementById("State").value = address.state || "";
                         document.getElementById("Latitude").value = place.lat;
                         document.getElementById("Longitude").value = place.lon;
@@ -200,20 +222,18 @@
                 });
             }
 
-            // Manual toggle
-            document.getElementById("manualEntryBtn").addEventListener("click", function () {
-            document.getElementById("manualFields").style.display = "block";
+            // ===== FORM SUBMIT: final safety sync =====
+            document.querySelector("form").addEventListener("submit", function () {
+                const manualFieldsVisible = document.getElementById("manualFields").style.display !== "none";
 
-            document.getElementById("Course").value = "";
-            document.getElementById("Latitude").value = "";
-            document.getElementById("Longitude").value = "";
+                if (manualFieldsVisible) {
+                    document.getElementById("Course").value = document.getElementById("manualCourse").value;
+                    document.getElementById("City").value = document.getElementById("manualCity").value;
+                    document.getElementById("State").value = document.getElementById("manualState").value;
+                }
+            });
 
-            // ✅ NEW: copy manual values into hidden inputs
-            document.getElementById("City").value = document.getElementById("manualCity").value;
-            document.getElementById("State").value = document.getElementById("manualState").value;
-        });
-
-        });
+        }); // end DOMContentLoaded
     </script>
 }
 

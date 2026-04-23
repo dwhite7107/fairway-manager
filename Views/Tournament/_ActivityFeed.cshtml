@@ -11,7 +11,10 @@ else
         {
             <li class="list-group-item">
                 <small style="opacity: 0.6;">
-                    @a.CreatedAt.ToString("MMM dd, HH:mm")
+                    @TimeZoneInfo.ConvertTimeFromUtc(
+                        a.CreatedAt,
+                        TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time")
+                    ).ToString("MMM d, h:mm tt")
                 </small><br />
                 @a.Message
             </li>

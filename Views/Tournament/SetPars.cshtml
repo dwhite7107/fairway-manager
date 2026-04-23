@@ -34,31 +34,43 @@
                         id="par-@i"
                         class="form-control"
                         style="width:70px;"
-                        value="@(existingPar != null ? existingPar.Par : "")" />
-
-                    <button type="button"
-                            class="btn btn-primary btn-sm"
-                            id="btn-@i"
-                            onclick="savePar(@i)">
-                        Save
-                    </button>
+                        value="@(existingPar != null ? existingPar.Par : "")"
+                        oninput="markDirty()" />
                 </div>
             </div>
         }
     </div>
 </div>
 
+
         <div class="mt-4">
-            <a href="/Tournament/Details/@ViewBag.TournamentId" 
-            class="btn btn-secondary">
+            <button type="button" class="btn btn-primary btn-lg" onclick="saveAllPars()">
+                💾 Save All Pars
+            </button>
+        </div>
+
+        <div class="mt-4">
+            <a href="/Tournament/Details/@ViewBag.TournamentId"
+                class="btn btn-secondary"
+                onclick="return confirmLeave()">
                 ← Back to Tournament
             </a>
         </div>
 
-
 <script>
+let isDirty = false;
+
+// 🔥 Track unsaved changes
+function markDirty() {
+    isDirty = true;
+}
+
+// 🔥 Save ONE hole
 function savePar(index) {
-    const value = document.getElementById(`par-${index}`).value;
+    const input = document.getElementById(`par-${index}`);
+    const value = input.value;
+
+    if (value === "") return;
 
     fetch('/Tournament/SaveSinglePar', {
         method: 'POST',
@@ -73,13 +85,47 @@ function savePar(index) {
     })
     .then(res => res.json())
     .then(data => {
-    const input = document.getElementById(`par-${index}`);
+        input.classList.add("flash-success");
 
-    input.classList.add("flash-success");
+        setTimeout(() => {
+            input.classList.remove("flash-success");
+        }, 800);
 
-    setTimeout(() => {
-        input.classList.remove("flash-success");
-    }, 800); // stays green for 0.8 seconds
-})
+        // ✅ reset dirty after save
+        isDirty = false;
+    });
 }
+
+// 🔥 Save ALL holes
+function saveAllPars() {
+    const inputs = document.querySelectorAll('[id^="par-"]');
+
+    inputs.forEach((input, index) => {
+        if (input.value !== "") {
+            setTimeout(() => {
+                savePar(index);
+            }, index * 200); // 🔥 delay each call
+        }
+    });
+
+    isDirty = false;
+
+    alert("✅ All pars saved!");
+}
+
+// 🔥 Back button warning
+function confirmLeave() {
+    if (isDirty) {
+        return confirm("Are you sure you want to leave without saving pars?");
+    }
+    return true;
+}
+
+// 🔥 Browser/tab close warning
+window.addEventListener("beforeunload", function (e) {
+    if (isDirty) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+});
 </script>

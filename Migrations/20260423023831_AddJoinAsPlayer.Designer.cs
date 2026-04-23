@@ -3,6 +3,7 @@ using System;
 using FairwayManager.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,10 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace FairwayManager.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260423023831_AddJoinAsPlayer")]
+    partial class AddJoinAsPlayer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -210,6 +212,9 @@ namespace FairwayManager.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsTeamBased")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("JoinAsPlayer")
                         .HasColumnType("boolean");
 
                     b.Property<string>("JoinCode")

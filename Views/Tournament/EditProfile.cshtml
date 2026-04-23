@@ -37,7 +37,7 @@
         </div>
     </div>
 
-    <form method="post">
+    <form method="post" id="editProfileForm">
 
         <!-- FULL NAME -->
         <div class="mb-3">
@@ -59,7 +59,11 @@
         <!-- HOME COURSE -->
         <div class="mb-3">
             <label class="form-label text-white">Home Course</label>
-            <input type="text" id="courseSearch" class="form-control" placeholder="Start typing course name..." />
+            <input type="text"
+                id="courseSearch"
+                class="form-control"
+                value="@Model.HomeCourse"
+                placeholder="Start typing course name..." />
 
             <div id="courseResults" class="list-group mt-2"></div>
 
@@ -123,7 +127,13 @@ if (!searchInput) {
             }
 
             try {
-                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5`;
+                const url = `https://nominatim.openstreetmap.org/search?` +
+                    `q=${encodeURIComponent(query)}&` +
+                    `format=json&` +
+                    `limit=5&` +
+                    `countrycodes=us&` +        // 🇺🇸 only US
+                    `addressdetails=1&` +
+                    `extratags=1`;
 
                 const response = await fetch(url, {
                     headers: {
@@ -133,7 +143,22 @@ if (!searchInput) {
 
                 const data = await response.json();
 
-                displayResults(data);
+                // ✅ FILTER HERE
+                const filtered = data.filter(place => {
+                    const name = place.display_name.toLowerCase();
+
+                    const isGolfRelated =
+                        name.includes("golf") ||
+                        name.includes("country club");
+
+                    const isCorrectType =
+                        place.type === "golf_course" ||
+                        place.class === "leisure";
+
+                    return isGolfRelated || isCorrectType;
+                });
+
+                displayResults(filtered);
 
             } catch (err) {
                 console.error("Fetch failed:", err);
@@ -176,5 +201,18 @@ if (!searchInput) {
     }
 
 }
+
+document.addEventListener("DOMContentLoaded", function () {
+    const form = document.getElementById("editProfileForm");
+
+    if (form) {
+        form.addEventListener("submit", function () {
+            const visible = document.getElementById("courseSearch").value;
+            document.getElementById("HomeCourse").value = visible;
+        });
+    }
+});
+
+
 </script>
 }

@@ -27,7 +27,9 @@ namespace FairwayManager.Controllers
 
         public async Task<IActionResult> Index(string statusFilter, int page = 1)
         {
-            int pageSize = 6;
+            Console.WriteLine($"FILTER VALUE: {statusFilter}");
+
+            int pageSize = 15;
 
             var tournaments = await _tournamentService.GetAllTournamentsAsync();
 
@@ -47,7 +49,7 @@ namespace FairwayManager.Controllers
             }
 
             // 🔎 FILTER
-            if (!string.IsNullOrEmpty(statusFilter))
+            if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "All")
             {
                 tournaments = tournaments
                     .Where(t => t.Status == statusFilter)
@@ -214,7 +216,7 @@ namespace FairwayManager.Controllers
                     }
                     catch
                     {
-                        // Fail silently (do not block tournament creation)
+                        // Fail silently (do not block tournament creation
                     }
                 }
 
@@ -222,7 +224,7 @@ namespace FairwayManager.Controllers
                 _context.Add(tournament);
                 _context.SaveChanges();
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Details", new { id = tournament.Id });
             }
 
             return View(tournament);
@@ -324,6 +326,8 @@ namespace FairwayManager.Controllers
         [HttpPost]
         public IActionResult EditProfile(Player updatedPlayer)
         {
+
+            Console.WriteLine("HOME COURSE: " + updatedPlayer.HomeCourse);
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
             var player = _context.Players.FirstOrDefault(p => p.UserId == userId);
@@ -352,6 +356,30 @@ namespace FairwayManager.Controllers
 
             if (tournament == null)
                 return NotFound();
+                var today = DateTime.UtcNow.Date;
+
+                // 🚫 BLOCK UPCOMING TOURNAMENTS
+                if (tournament.Date.Date > today)
+                {
+                    TempData["Error"] = "Scoring is not available until the tournament starts.";
+                    return RedirectToAction("Details", new { id });
+                }
+            
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+            var player = _context.Players.FirstOrDefault(p => p.UserId == currentUserId);
+
+            bool alreadyJoined = player != null &&
+                tournament.TournamentPlayers.Any(tp => tp.PlayerId == player.Id);
+
+            bool isCreator = currentUserId == tournament.CreatorId;
+
+            // 🚫 BLOCK only if NOT joined AND NOT creator
+            if (!alreadyJoined && !isCreator)
+            {
+                return RedirectToAction("Details", new { id });
+            }
+
             
             var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1);
 
@@ -390,6 +418,14 @@ namespace FairwayManager.Controllers
         {
 
             var tournament = _context.Tournaments.Find(id);
+
+            var today = DateTime.UtcNow.Date;
+
+            // 🚫 BLOCK UPCOMING TOURNAMENTS
+            if (tournament.Date.Date > today)
+            {
+                return RedirectToAction("Details", new { id });
+            }
 
             var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1);
 
@@ -865,7 +901,6 @@ namespace FairwayManager.Controllers
 
         public IActionResult LeaderboardPartial(int id, int? round)
         {
-
             var tournament = _context.Tournaments
                 .Include(t => t.TournamentPlayers)
                     .ThenInclude(tp => tp.Player)
@@ -904,8 +939,8 @@ namespace FairwayManager.Controllers
                             .ToList();
 
                         List<(int strokes, int round)> scoresByHole = new List<(int, int)>();
-
-                         int parSoFar = 0;
+                        int parSoFar = 0;
+                        List<TeamScore> scrambleScores = new List<TeamScore>();
 
                         if (tournament.ScoringType == "BestBall")
                         {
@@ -923,45 +958,62 @@ namespace FairwayManager.Controllers
                         }
                         else if (tournament.ScoringType == "Scramble")
                         {
-                            var scrambleScores = _context.TeamScores
+                            scrambleScores = _context.TeamScores
                                 .Where(s => s.TournamentId == id && s.TeamId == tt.TeamId)
                                 .ToList();
-
-                            scoresByHole = scrambleScores
-                                .Select(s => (s.Strokes, s.RoundNumber))
-                                .ToList();
-
-                            var filteredScores = selectedRound == 0
-                                ? scrambleScores
-                                : scrambleScores.Where(s => s.RoundNumber == selectedRound).ToList();
-
-                            parSoFar = filteredScores.Sum(s =>
-                                pars.FirstOrDefault(p => p.HoleNumber == s.HoleNumber)?.Par ?? 0
-                            );
                         }
 
-                        if (selectedRound > 0)
+                        if (selectedRound > 0 && tournament.ScoringType != "Scramble")
                             scoresByHole = scoresByHole
                                 .Where(s => s.round == selectedRound)
                                 .ToList();
 
-                        int totalStrokes = scoresByHole.Sum(s => s.strokes);
+                        int totalStrokes;
+                        int holesPlayed;
 
-                        int holesPlayed = scoresByHole.Count;
-                        if (tournament.ScoringType != "Scramble")
+                        if (tournament.ScoringType == "Scramble")
                         {
+                            var filteredScramble = selectedRound == 0
+                                ? scrambleScores
+                                : scrambleScores.Where(s => s.RoundNumber == selectedRound).ToList();
+
+                            totalStrokes = filteredScramble.Sum(s => s.Strokes);
+                            holesPlayed = filteredScramble.Count;
+
+                            parSoFar = filteredScramble.Sum(s =>
+                                pars.FirstOrDefault(p => p.HoleNumber == s.HoleNumber)?.Par ?? 0
+                            );
+                        }
+                        else
+                        {
+                            totalStrokes = scoresByHole.Sum(s => s.strokes);
+
                             parSoFar = scoresByHole.Sum(s =>
                                 pars.FirstOrDefault(p => p.HoleNumber == s.round)?.Par ?? 0
                             );
+
+                            holesPlayed = 0;
+                            var roundsToCheck = selectedRound == 0
+                                ? Enumerable.Range(1, tournament.NumberOfRounds)
+                                : new List<int> { selectedRound };
+
+                            foreach (int r in roundsToCheck)
+                            {
+                                foreach (int hole in Enumerable.Range(1, tournament.HoleCount))
+                                {
+                                    bool allPlayersScored = teamPlayerIds.All(playerId =>
+                                        allScores.Any(s =>
+                                            s.PlayerId == playerId &&
+                                            s.HoleNumber == hole &&
+                                            s.RoundNumber == r
+                                        )
+                                    );
+
+                                    if (allPlayersScored)
+                                        holesPlayed++;
+                                }
+                            }
                         }
-                        
-
-                        
-
-                        
-
-                
-
 
                         string thruDisplay = holesPlayed == 0
                             ? "-"
@@ -1006,10 +1058,8 @@ namespace FairwayManager.Controllers
                                 .ToList();
 
                         int totalStrokes = playerScores.Sum(s => s.Strokes);
-
                         int holesPlayed = playerScores.Count;
 
-                       
                         int parSoFar = playerScores.Sum(s =>
                             pars.FirstOrDefault(p => p.HoleNumber == s.HoleNumber)?.Par ?? 0
                         );
@@ -1042,9 +1092,10 @@ namespace FairwayManager.Controllers
                     .Cast<object>()
                     .ToList();
             }
+
             return PartialView("_LeaderboardRows", leaderboard);
         }
-    
+
         public IActionResult Leaderboard(int id, int? round)
         {
             var tournament = _context.Tournaments
@@ -1058,7 +1109,7 @@ namespace FairwayManager.Controllers
             if (tournament == null)
                 return NotFound();
 
-            int selectedRound = round ?? 0; // 0 = total
+            int selectedRound = round ?? 0;
 
             ViewBag.SelectedRound = selectedRound;
             ViewBag.TotalRounds = tournament.NumberOfRounds;
@@ -1072,7 +1123,6 @@ namespace FairwayManager.Controllers
                 .ToList();
 
             int totalHolesAllRounds = tournament.HoleCount * tournament.NumberOfRounds;
-
             List<object> leaderboard;
 
             if (tournament.IsTeamBased)
@@ -1089,8 +1139,8 @@ namespace FairwayManager.Controllers
                             .ToList();
 
                         List<(int strokes, int round)> scoresByHole = new List<(int, int)>();
-
-                         int parSoFar = 0;
+                        int parSoFar = 0;
+                        List<TeamScore> scrambleScores = new List<TeamScore>();
 
                         if (tournament.ScoringType == "BestBall")
                         {
@@ -1108,45 +1158,62 @@ namespace FairwayManager.Controllers
                         }
                         else if (tournament.ScoringType == "Scramble")
                         {
-                            var scrambleScores = _context.TeamScores
+                            scrambleScores = _context.TeamScores
                                 .Where(s => s.TournamentId == id && s.TeamId == tt.TeamId)
                                 .ToList();
-
-                            scoresByHole = scrambleScores
-                                .Select(s => (s.Strokes, s.RoundNumber))
-                                .ToList();
-
-                            var filteredScores = selectedRound == 0
-                                ? scrambleScores
-                                : scrambleScores.Where(s => s.RoundNumber == selectedRound).ToList();
-
-                            parSoFar = filteredScores.Sum(s =>
-                                pars.FirstOrDefault(p => p.HoleNumber == s.HoleNumber)?.Par ?? 0
-                            );
                         }
 
-                        if (selectedRound > 0)
+                        if (selectedRound > 0 && tournament.ScoringType != "Scramble")
                             scoresByHole = scoresByHole
                                 .Where(s => s.round == selectedRound)
                                 .ToList();
 
-                        int totalStrokes = scoresByHole.Sum(s => s.strokes);
+                        int totalStrokes;
+                        int holesPlayed;
 
-                        int holesPlayed = scoresByHole.Count;
-                        if (tournament.ScoringType != "Scramble")
+                        if (tournament.ScoringType == "Scramble")
                         {
+                            var filteredScramble = selectedRound == 0
+                                ? scrambleScores
+                                : scrambleScores.Where(s => s.RoundNumber == selectedRound).ToList();
+
+                            totalStrokes = filteredScramble.Sum(s => s.Strokes);
+                            holesPlayed = filteredScramble.Count;
+
+                            parSoFar = filteredScramble.Sum(s =>
+                                pars.FirstOrDefault(p => p.HoleNumber == s.HoleNumber)?.Par ?? 0
+                            );
+                        }
+                        else
+                        {
+                            totalStrokes = scoresByHole.Sum(s => s.strokes);
+
                             parSoFar = scoresByHole.Sum(s =>
                                 pars.FirstOrDefault(p => p.HoleNumber == s.round)?.Par ?? 0
                             );
+
+                            holesPlayed = 0;
+                            var roundsToCheck = selectedRound == 0
+                                ? Enumerable.Range(1, tournament.NumberOfRounds)
+                                : new List<int> { selectedRound };
+
+                            foreach (int r in roundsToCheck)
+                            {
+                                foreach (int hole in Enumerable.Range(1, tournament.HoleCount))
+                                {
+                                    bool allPlayersScored = teamPlayerIds.All(playerId =>
+                                        allScores.Any(s =>
+                                            s.PlayerId == playerId &&
+                                            s.HoleNumber == hole &&
+                                            s.RoundNumber == r
+                                        )
+                                    );
+
+                                    if (allPlayersScored)
+                                        holesPlayed++;
+                                }
+                            }
                         }
-                        
-
-                        
-
-                        
-
-                
-
 
                         string thruDisplay = holesPlayed == 0
                             ? "-"
@@ -1191,10 +1258,8 @@ namespace FairwayManager.Controllers
                                 .ToList();
 
                         int totalStrokes = playerScores.Sum(s => s.Strokes);
-
                         int holesPlayed = playerScores.Count;
 
-                       
                         int parSoFar = playerScores.Sum(s =>
                             pars.FirstOrDefault(p => p.HoleNumber == s.HoleNumber)?.Par ?? 0
                         );
@@ -1544,7 +1609,9 @@ namespace FairwayManager.Controllers
                     Total = totalStrokes,
                     ToPar = toPar
                 };
-            }).ToList();
+            })
+            .OrderByDescending(x => x.Date)
+            .ToList();
 
             // ✅ ONLY include tournaments where player actually has scores
             var validHistory = history.Where(x => x.Total > 0).ToList();
