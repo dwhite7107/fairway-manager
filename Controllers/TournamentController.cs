@@ -356,15 +356,20 @@ namespace FairwayManager.Controllers
 
             if (tournament == null)
                 return NotFound();
-                var today = DateTime.Now.Date;
 
-                // 🚫 BLOCK UPCOMING TOURNAMENTS
-                if (tournament.Date.Date > today)
-                {
-                    TempData["Error"] = "Scoring is not available until the tournament starts.";
-                    return RedirectToAction("Details", new { id });
-                }
-            
+            // ✅ Use consistent local date
+            var today = DateTime.Now.Date;
+
+            var startDate = tournament.Date.Date;
+            var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
+
+            // 🚫 BLOCK UPCOMING
+            if (today < startDate)
+            {
+                TempData["Error"] = "Scoring is not available until the tournament starts.";
+                return RedirectToAction("Details", new { id });
+            }
+
             var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
 
             var player = _context.Players.FirstOrDefault(p => p.UserId == currentUserId);
@@ -374,41 +379,34 @@ namespace FairwayManager.Controllers
 
             bool isCreator = currentUserId == tournament.CreatorId;
 
-            // 🚫 BLOCK only if NOT joined AND NOT creator
+            // 🚫 BLOCK if NOT joined AND NOT creator
             if (!alreadyJoined && !isCreator)
             {
                 return RedirectToAction("Details", new { id });
             }
 
-            
-            var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1);
-
-            if (DateTime.Today > endDate)
+            // 🚫 BLOCK COMPLETED
+            if (today > endDate)
             {
+                TempData["Error"] = "Tournament has already been completed.";
                 return RedirectToAction("Details", new { id });
             }
 
+            // 🔁 Redirect if Scramble
             if (tournament.ScoringType == "Scramble")
             {
                 return RedirectToAction("EnterScrambleScores", new { id });
             }
 
-            
             var scores = _context.Scores
                 .Where(s => s.TournamentId == id)
                 .ToList();
-            
+
             ViewBag.CurrentRound = round;
-
             ViewBag.AllScores = scores;
-            
             ViewBag.TournamentPlayers = tournament.TournamentPlayers;
-
-
             ViewBag.Scores = scores;
 
-
-            
             return View(tournament);
         }
 
