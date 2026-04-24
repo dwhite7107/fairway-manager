@@ -28,21 +28,29 @@
 <div class="tournament-details">
 
 @{
-    var endDate = Model.Date.AddDays(Model.NumberOfRounds - 1);
+    var today = DateTime.Now.Date;
+
+    var startDate = new DateTime(
+        Model.Date.Year,
+        Model.Date.Month,
+        Model.Date.Day
+    );
+
+    var endDate = startDate.AddDays(Model.NumberOfRounds - 1);
 
     string status;
 
-    if (DateTime.Today < Model.Date)
+    if (today < startDate)
     {
         status = "Upcoming";
     }
-    else if (DateTime.Today <= endDate)
+    else if (today > endDate)
     {
-        status = "In Progress";
+        status = "Completed";
     }
     else
     {
-        status = "Completed";
+        status = "In Progress";
     }
 }
 
