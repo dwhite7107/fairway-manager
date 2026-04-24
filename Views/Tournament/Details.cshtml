@@ -18,8 +18,7 @@
 
     var isCreator = currentUserId == Model.CreatorId;
 
-    var endDate2 = Model.Date.AddDays(Model.NumberOfRounds - 1);
-    var isCompleted = DateTime.Today > endDate2;
+    
 }
 
 
@@ -306,7 +305,7 @@
             </a>
         }
 
-        @if (isLoggedIn && alreadyJoined && !isCompleted)
+        @if (isLoggedIn && alreadyJoined && status == "In Progress")
         {
             <a asp-action="EnterScores" asp-route-id="@Model.Id" class="btn-action">
                 ⛳ Enter Scores
