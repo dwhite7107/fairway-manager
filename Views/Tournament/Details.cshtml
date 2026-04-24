@@ -27,10 +27,9 @@
 <div class="tournament-details">
 
 @{
-    TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
-    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime).Date;
+    var today = DateTime.UtcNow.Date;
 
-    
+    var startDate = Model.Date.Date;
     var endDate = startDate.AddDays(Model.NumberOfRounds - 1);
 
     string status;

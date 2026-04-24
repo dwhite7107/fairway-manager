@@ -356,22 +356,19 @@ namespace FairwayManager.Controllers
             if (tournament == null)
                 return NotFound();
 
-            // Treat the stored date as a pure calendar date — strip time and ignore timezone
-            TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
-            var today = DateOnly.FromDateTime(
-                TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime)
-            );
-            var startDate = DateOnly.FromDateTime(tournament.Date);
+            // ✅ SIMPLE DATE FIX (NO TIMEZONE STUFF)
+            var today = DateTime.Now.Date;
+            var startDate = tournament.Date.AddHours(5).Date;
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
 
-            // BLOCK UPCOMING
+            // 🚫 BLOCK UPCOMING
             if (today < startDate)
             {
                 TempData["Error"] = "Scoring is not available until the tournament starts.";
                 return RedirectToAction("Details", new { id });
             }
 
-            // BLOCK COMPLETED
+            // 🚫 BLOCK COMPLETED
             if (today > endDate)
             {
                 TempData["Error"] = "Tournament has already been completed.";
@@ -383,6 +380,7 @@ namespace FairwayManager.Controllers
 
             bool alreadyJoined = player != null &&
                 tournament.TournamentPlayers.Any(tp => tp.PlayerId == player.Id);
+
             bool isCreator = currentUserId == tournament.CreatorId;
 
             if (!alreadyJoined && !isCreator)
@@ -413,12 +411,9 @@ namespace FairwayManager.Controllers
             if (tournament == null)
                 return NotFound();
 
-            // Same consistent date logic as the GET
-            TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
-            var today = DateOnly.FromDateTime(
-                TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime)
-            );
-            var startDate = DateOnly.FromDateTime(tournament.Date);
+            // ✅ SAME SIMPLE DATE FIX
+            var today = DateTime.Now.Date;
+            var startDate = tournament.Date.AddHours(5).Date;
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
 
             if (today < startDate || today > endDate)
