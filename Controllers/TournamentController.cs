@@ -355,50 +355,39 @@ namespace FairwayManager.Controllers
 
             if (tournament == null)
                 return NotFound();
-                Console.WriteLine($"DB Date: {tournament.Date}");
-                Console.WriteLine($"Local Date: {tournament.Date.ToLocalTime()}");
-                Console.WriteLine($"Today: {DateTime.Now}");
 
-            // ✅ Use consistent local date
-            var today = DateTime.Now.Date;
-
-            var startDate = tournament.Date.ToLocalTime().Date;
+            // Treat the stored date as a pure calendar date — strip time and ignore timezone
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var startDate = DateOnly.FromDateTime(tournament.Date);
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
 
-            // 🚫 BLOCK UPCOMING
+            // BLOCK UPCOMING
             if (today < startDate)
             {
                 TempData["Error"] = "Scoring is not available until the tournament starts.";
                 return RedirectToAction("Details", new { id });
             }
 
-            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-
-            var player = _context.Players.FirstOrDefault(p => p.UserId == currentUserId);
-
-            bool alreadyJoined = player != null &&
-                tournament.TournamentPlayers.Any(tp => tp.PlayerId == player.Id);
-
-            bool isCreator = currentUserId == tournament.CreatorId;
-
-            // 🚫 BLOCK if NOT joined AND NOT creator
-            if (!alreadyJoined && !isCreator)
-            {
-                return RedirectToAction("Details", new { id });
-            }
-
-            // 🚫 BLOCK COMPLETED
+            // BLOCK COMPLETED
             if (today > endDate)
             {
                 TempData["Error"] = "Tournament has already been completed.";
                 return RedirectToAction("Details", new { id });
             }
 
-            // 🔁 Redirect if Scramble
+            var currentUserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var player = _context.Players.FirstOrDefault(p => p.UserId == currentUserId);
+
+            bool alreadyJoined = player != null &&
+                tournament.TournamentPlayers.Any(tp => tp.PlayerId == player.Id);
+            bool isCreator = currentUserId == tournament.CreatorId;
+
+            if (!alreadyJoined && !isCreator)
+                return RedirectToAction("Details", new { id });
+
+            // Redirect if Scramble
             if (tournament.ScoringType == "Scramble")
-            {
                 return RedirectToAction("EnterScrambleScores", new { id });
-            }
 
             var scores = _context.Scores
                 .Where(s => s.TournamentId == id)
@@ -416,25 +405,19 @@ namespace FairwayManager.Controllers
         [Authorize]
         public IActionResult EnterScores(int id, int round, List<int> strokes, List<int> playerIds, List<int> holeNumbers)
         {
-
             var tournament = _context.Tournaments.Find(id);
 
-            var today = DateTime.Now.Date;
-            var startDate = tournament.Date.ToLocalTime().Date;
+            if (tournament == null)
+                return NotFound();
 
-            // 🚫 BLOCK UPCOMING TOURNAMENTS
-            if (today < startDate)
-            {
+            // Same consistent date logic as the GET
+            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var startDate = DateOnly.FromDateTime(tournament.Date);
+            var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
+
+            if (today < startDate || today > endDate)
                 return RedirectToAction("Details", new { id });
-            }
 
-            var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1).Date;
-
-            if (today > endDate)
-            {
-                return RedirectToAction("Details", new { id });
-            }
-            
             for (int i = 0; i < strokes.Count; i++)
             {
                 var existingScore = _context.Scores.FirstOrDefault(s =>
@@ -449,22 +432,22 @@ namespace FairwayManager.Controllers
                 }
                 else
                 {
-                    var score = new Score
+                    _context.Scores.Add(new Score
                     {
                         TournamentId = id,
                         PlayerId = playerIds[i],
                         HoleNumber = holeNumbers[i],
-                        RoundNumber = round, // 🔥 THIS FIXES YOUR ISSUE
+                        RoundNumber = round,
                         Strokes = strokes[i]
-                    };
-
-                    _context.Scores.Add(score);
+                    });
                 }
             }
 
             _context.SaveChanges();
 
-            var playerName = _context.Players.FirstOrDefault(p => p.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)?.Name;
+            var playerName = _context.Players
+                .FirstOrDefault(p => p.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier).Value)
+                ?.Name;
 
             AddActivity(id, $"{playerName} submitted scores for Round {round}");
 
