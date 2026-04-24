@@ -427,9 +427,9 @@ namespace FairwayManager.Controllers
                 return RedirectToAction("Details", new { id });
             }
 
-            var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1);
+            var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1).Date;
 
-            if (DateTime.Today > endDate)
+            if (DateTime.UtcNow.Date > endDate)
             {
                 return RedirectToAction("Details", new { id });
             }
