@@ -34,7 +34,7 @@ namespace FairwayManager.Services
             tournament.CreatedAt = DateTime.UtcNow;
 
             
-            tournament.Date = DateTime.SpecifyKind(tournament.Date, DateTimeKind.Utc);
+            
 
             // Generate a UNIQUE join code
             tournament.JoinCode = await GenerateUniqueJoinCode();

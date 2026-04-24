@@ -179,8 +179,7 @@ namespace FairwayManager.Controllers
         {
             if (ModelState.IsValid)
             {
-                // ✅ Fix DateTime for PostgreSQL (UTC required)
-                tournament.Date = DateTime.SpecifyKind(tournament.Date, DateTimeKind.Utc);
+                
 
                 
                 if (string.IsNullOrEmpty(tournament.ScoringType))
