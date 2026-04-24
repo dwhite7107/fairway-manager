@@ -180,7 +180,7 @@ namespace FairwayManager.Controllers
             if (ModelState.IsValid)
             {
                 
-
+                tournament.Date = tournament.Date.ToUniversalTime();
                 
                 if (string.IsNullOrEmpty(tournament.ScoringType))
                 {
