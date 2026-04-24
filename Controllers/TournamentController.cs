@@ -357,7 +357,10 @@ namespace FairwayManager.Controllers
                 return NotFound();
 
             // Treat the stored date as a pure calendar date — strip time and ignore timezone
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var centralTime = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            var today = DateOnly.FromDateTime(
+                TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime)
+            );
             var startDate = DateOnly.FromDateTime(tournament.Date);
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
 
@@ -411,7 +414,10 @@ namespace FairwayManager.Controllers
                 return NotFound();
 
             // Same consistent date logic as the GET
-            var today = DateOnly.FromDateTime(DateTime.UtcNow);
+            var centralTime = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            var today = DateOnly.FromDateTime(
+                TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime)
+            );
             var startDate = DateOnly.FromDateTime(tournament.Date);
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
 
