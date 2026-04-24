@@ -356,7 +356,7 @@ namespace FairwayManager.Controllers
 
             if (tournament == null)
                 return NotFound();
-                var today = DateTime.UtcNow.Date;
+                var today = DateTime.Now.Date;
 
                 // 🚫 BLOCK UPCOMING TOURNAMENTS
                 if (tournament.Date.Date > today)
@@ -419,7 +419,7 @@ namespace FairwayManager.Controllers
 
             var tournament = _context.Tournaments.Find(id);
 
-            var today = DateTime.UtcNow.Date;
+            var today = DateTime.Now.Date;
 
             // 🚫 BLOCK UPCOMING TOURNAMENTS
             if (tournament.Date.Date > today)
@@ -429,7 +429,7 @@ namespace FairwayManager.Controllers
 
             var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1).Date;
 
-            if (DateTime.UtcNow.Date > endDate)
+            if (DateTime.Now.Date > endDate)
             {
                 return RedirectToAction("Details", new { id });
             }
