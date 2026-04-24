@@ -356,6 +356,9 @@ namespace FairwayManager.Controllers
 
             if (tournament == null)
                 return NotFound();
+                Console.WriteLine($"DB Date: {tournament.Date}");
+                Console.WriteLine($"Local Date: {tournament.Date.ToLocalTime()}");
+                Console.WriteLine($"Today: {DateTime.Now}");
 
             // ✅ Use consistent local date
             var today = DateTime.Now.Date;
