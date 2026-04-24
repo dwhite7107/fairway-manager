@@ -360,7 +360,7 @@ namespace FairwayManager.Controllers
             // ✅ Use consistent local date
             var today = DateTime.Now.Date;
 
-            var startDate = tournament.Date.Date;
+            var startDate = tournament.Date.ToLocalTime().Date;
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
 
             // 🚫 BLOCK UPCOMING
@@ -418,7 +418,7 @@ namespace FairwayManager.Controllers
             var tournament = _context.Tournaments.Find(id);
 
             var today = DateTime.Now.Date;
-            var startDate = tournament.Date.Date;
+            var startDate = tournament.Date.ToLocalTime().Date;
 
             // 🚫 BLOCK UPCOMING TOURNAMENTS
             if (today < startDate)
