@@ -418,16 +418,17 @@ namespace FairwayManager.Controllers
             var tournament = _context.Tournaments.Find(id);
 
             var today = DateTime.Now.Date;
+            var startDate = tournament.Date.Date;
 
             // 🚫 BLOCK UPCOMING TOURNAMENTS
-            if (tournament.Date.Date > today)
+            if (today < startDate)
             {
                 return RedirectToAction("Details", new { id });
             }
 
             var endDate = tournament.Date.AddDays(tournament.NumberOfRounds - 1).Date;
 
-            if (DateTime.Now.Date > endDate)
+            if (today > endDate)
             {
                 return RedirectToAction("Details", new { id });
             }
