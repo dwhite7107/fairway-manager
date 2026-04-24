@@ -357,7 +357,7 @@ namespace FairwayManager.Controllers
                 return NotFound();
 
             // Treat the stored date as a pure calendar date — strip time and ignore timezone
-            var centralTime = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
             var today = DateOnly.FromDateTime(
                 TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime)
             );
@@ -414,7 +414,7 @@ namespace FairwayManager.Controllers
                 return NotFound();
 
             // Same consistent date logic as the GET
-            var centralTime = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+            TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
             var today = DateOnly.FromDateTime(
                 TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime)
             );

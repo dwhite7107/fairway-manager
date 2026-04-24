@@ -27,7 +27,7 @@
 <div class="tournament-details">
 
 @{
-    var centralTime = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+    TimeZoneInfo.FindSystemTimeZoneById("America/Chicago");
     var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime).Date;
 
     
