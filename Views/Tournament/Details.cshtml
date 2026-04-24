@@ -27,9 +27,10 @@
 <div class="tournament-details">
 
 @{
-    var today = DateTime.Now.Date;
+    var centralTime = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, centralTime).Date;
 
-    var startDate = Model.Date.AddHours(6).Date;
+    
     var endDate = startDate.AddDays(Model.NumberOfRounds - 1);
 
     string status;
