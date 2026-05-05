@@ -60,12 +60,12 @@
 <script>
 let isDirty = false;
 
-// 🔥 Track unsaved changes
+//  Track unsaved changes
 function markDirty() {
     isDirty = true;
 }
 
-// 🔥 Save ONE hole
+//  Save ONE hole
 function savePar(index) {
     const input = document.getElementById(`par-${index}`);
     const value = input.value;
@@ -96,7 +96,7 @@ function savePar(index) {
     });
 }
 
-// 🔥 Save ALL holes
+//  Save ALL holes
 function saveAllPars() {
     const inputs = document.querySelectorAll('[id^="par-"]');
 
@@ -104,7 +104,7 @@ function saveAllPars() {
         if (input.value !== "") {
             setTimeout(() => {
                 savePar(index);
-            }, index * 200); // 🔥 delay each call
+            }, index * 200); 
         }
     });
 
@@ -113,7 +113,7 @@ function saveAllPars() {
     alert("✅ All pars saved!");
 }
 
-// 🔥 Back button warning
+//  Back button warning
 function confirmLeave() {
     if (isDirty) {
         return confirm("Are you sure you want to leave without saving pars?");
@@ -121,7 +121,7 @@ function confirmLeave() {
     return true;
 }
 
-// 🔥 Browser/tab close warning
+//  Browser/tab close warning
 window.addEventListener("beforeunload", function (e) {
     if (isDirty) {
         e.preventDefault();

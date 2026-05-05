@@ -81,6 +81,10 @@ namespace FairwayManager.Controllers
             return RedirectToAction("Details", "Tournament", new { id = tournamentId });
         }
 
+        // here we need to log any activity that happens in a tournament
+        // like when someone joins, enters scores, or finishes a round
+        // gotta create a new activity object and save it to the database
+        // using UTC time so everything stays consistent
         private void AddActivity(int tournamentId, string message)
         {
             var activity = new TournamentActivity
@@ -96,7 +100,6 @@ namespace FairwayManager.Controllers
 
         // ----------------------------
         // Join Team
-        // ----------------------------
         [HttpPost]
         public async Task<IActionResult> Join(int teamId, int tournamentId)
         {

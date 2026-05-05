@@ -35,7 +35,7 @@ namespace FairwayManager.Controllers
 
             var today = DateTime.Today;
 
-            // 🔥 Apply status logic
+            //  Apply status logic
             foreach (var t in tournaments)
             {
                 var endDate = t.Date.AddDays(t.NumberOfRounds - 1);
@@ -48,7 +48,7 @@ namespace FairwayManager.Controllers
                     t.Status = "Completed";
             }
 
-            // 🔎 FILTER
+            //  FILTER
             if (!string.IsNullOrEmpty(statusFilter) && statusFilter != "All")
             {
                 tournaments = tournaments
@@ -56,7 +56,7 @@ namespace FairwayManager.Controllers
                     .ToList();
             }
 
-            // 📄 PAGINATION
+            //  PAGINATION
             int totalItems = tournaments.Count();
 
             var pagedData = tournaments
@@ -93,7 +93,7 @@ namespace FairwayManager.Controllers
                 ViewBag.CurrentUserId = user.Id;
             }
 
-            // 🔥 ADD THIS BLOCK
+            //  ADD THIS BLOCK
             var activity = await _context.TournamentActivities
                 .Where(a => a.TournamentId == id)
                 .OrderByDescending(a => a.CreatedAt)
@@ -187,10 +187,10 @@ namespace FairwayManager.Controllers
                     tournament.ScoringType = "Stroke Play";
                 }
 
-                // ✅ Generate Join Code
+                //  Generate Join Code
                 tournament.JoinCode = GenerateJoinCode();
 
-                // 🔥 Geocode if missing (manual entry fallback)
+                //  Geocode if missing (manual entry fallback)
                 if (tournament.Latitude == null || tournament.Longitude == null)
                 {
                     try
@@ -228,7 +228,7 @@ namespace FairwayManager.Controllers
 
             return View(tournament);
         }
-
+        
         public IActionResult Browse()
         {
             return RedirectToAction("Index");
@@ -262,7 +262,7 @@ namespace FairwayManager.Controllers
             var pars = _context.TournamentHolePars
                 .Where(p => p.TournamentId == id)
                 .ToList();
-
+        
             ViewBag.TournamentId = id;
             ViewBag.HoleCount = tournament.HoleCount;
             ViewBag.Pars = pars;
@@ -356,19 +356,19 @@ namespace FairwayManager.Controllers
             if (tournament == null)
                 return NotFound();
 
-            // ✅ SIMPLE DATE FIX (NO TIMEZONE STUFF)
+            //  SIMPLE DATE FIX (NO TIMEZONE STUFF)
             var today = DateTime.Now.Date;
             var startDate = tournament.Date.AddHours(5).Date;
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
 
-            // 🚫 BLOCK UPCOMING
+            //  BLOCK UPCOMING
             if (today < startDate)
             {
                 TempData["Error"] = "Scoring is not available until the tournament starts.";
                 return RedirectToAction("Details", new { id });
             }
 
-            // 🚫 BLOCK COMPLETED
+            //  BLOCK COMPLETED
             if (today > endDate)
             {
                 TempData["Error"] = "Tournament has already been completed.";
@@ -411,7 +411,7 @@ namespace FairwayManager.Controllers
             if (tournament == null)
                 return NotFound();
 
-            // ✅ SAME SIMPLE DATE FIX
+            //  SAME SIMPLE DATE FIX
             var today = DateTime.Now.Date;
             var startDate = tournament.Date.AddHours(5).Date;
             var endDate = startDate.AddDays(tournament.NumberOfRounds - 1);
@@ -477,14 +477,14 @@ namespace FairwayManager.Controllers
                 return RedirectToAction("Details", new { id });
             }
 
-            // ✅ Filter scores by BOTH tournament AND round
+            //  Filter scores by BOTH tournament AND round
             var teamScores = _context.TeamScores
                 .Where(s => s.TournamentId == id && s.RoundNumber == round)
                 .ToList();
 
             ViewBag.TeamScores = teamScores;
 
-            // ✅ Pass round AFTER query (important for view consistency)
+            //  Pass round AFTER query (important for view consistency)
             ViewBag.CurrentRound = round;
 
             return View(tournament);
@@ -533,7 +533,7 @@ namespace FairwayManager.Controllers
             var user = await _userManager.GetUserAsync(User);
 
             if (tournament == null || user == null || tournament.CreatorId != user.Id)
-                return Forbid();   // 🔒 BLOCK NON-CREATORS
+                return Forbid();   //  BLOCK NON-CREATORS
 
             var playerTeam = await _context.PlayerTeams
                 .FirstOrDefaultAsync(pt => pt.TeamId == teamId && pt.PlayerId == playerId);
@@ -553,7 +553,7 @@ namespace FairwayManager.Controllers
             var tournament = await _context.Tournaments.FindAsync(tournamentId);
             var user = await _userManager.GetUserAsync(User);
 
-            // 🔒 SECURITY CHECK (CREATOR ONLY)
+            //  SECURITY CHECK (CREATOR ONLY)
             if (tournament == null || user == null || tournament.CreatorId != user.Id)
                 return Forbid();
 
@@ -579,7 +579,7 @@ namespace FairwayManager.Controllers
             var tournament = await _context.Tournaments.FindAsync(tournamentId);
             var user = await _userManager.GetUserAsync(User);
 
-            // 🔒 SECURITY CHECK (CREATOR ONLY)
+            //  SECURITY CHECK (CREATOR ONLY)
             if (tournament == null || user == null || tournament.CreatorId != user.Id)
                 return Forbid();
 
@@ -712,19 +712,19 @@ namespace FairwayManager.Controllers
 
             _context.SaveChanges();
 
-            // 🔥 GET TEAM NAME
+            //  GET TEAM NAME
             var teamName = _context.Teams
                 .Where(t => t.Id == teamId)
                 .Select(t => t.Name)
                 .FirstOrDefault();
 
-            // 🔥 GET PAR FOR THIS HOLE
+            //  GET PAR FOR THIS HOLE
             var par = _context.TournamentHolePars
                 .Where(p => p.TournamentId == tournamentId && p.HoleNumber == holeNumber)
                 .Select(p => p.Par)
                 .FirstOrDefault();
 
-            // 🔥 ONLY LOG SPECIAL SHOTS IF THIS IS A NEW ENTRY
+            //  ONLY LOG SPECIAL SHOTS IF THIS IS A NEW ENTRY
             if (isNewEntry)
             {
                 if (strokes == 1)
@@ -741,7 +741,7 @@ namespace FairwayManager.Controllers
                 }
             }
 
-            // 🔥 ROUND COMPLETION LOGIC
+            //  ROUND COMPLETION LOGIC
             var totalHoles = _context.Tournaments
                 .Where(t => t.Id == tournamentId)
                 .Select(t => t.HoleCount)
@@ -803,7 +803,7 @@ namespace FairwayManager.Controllers
 
                     int toPar = totalStrokes - totalPar;
 
-                    // 🔥 Calculate rank
+                    //  Calculate rank
                     var tournamentScores = _context.Scores
                         .Where(s => s.TournamentId == t.Id)
                         .ToList();
@@ -836,7 +836,7 @@ namespace FairwayManager.Controllers
                 .OrderByDescending(x => x.Date)
                 .ToList();
 
-            // 🔥 SUMMARY STATS
+            // SUMMARY STATS
             int tournamentsPlayed = history.Count;
 
             double avgToPar = tournamentsPlayed > 0
@@ -1322,12 +1322,12 @@ namespace FairwayManager.Controllers
 
                 if (existingScore != null)
                 {
-                    // ✅ UPDATE
+                    //  UPDATE
                     existingScore.Strokes = strokes;
                 }
                 else
                 {
-                    // ✅ INSERT
+                    //  INSERT
                     var score = new Score
                     {
                         TournamentId = TournamentId,
@@ -1343,7 +1343,7 @@ namespace FairwayManager.Controllers
 
             _context.SaveChanges();
 
-            // 🔥 TEAM FINISH LOGIC (for stroke play / best ball)
+            //  TEAM FINISH LOGIC (for stroke play / best ball)
             var teamId = _context.PlayerTeams
                 .Where(pt => pt.PlayerId == PlayerId && pt.TournamentId == TournamentId)
                 .Select(pt => pt.TeamId)
@@ -1458,13 +1458,13 @@ namespace FairwayManager.Controllers
             }
                 
 
-            // 🔥 TOTAL HOLES
+            //  TOTAL HOLES
             var totalHoles = _context.Tournaments
                 .Where(t => t.Id == tournamentId)
                 .Select(t => t.HoleCount)
                 .FirstOrDefault();
 
-            // 🔥 INDIVIDUAL FINISH
+            //  INDIVIDUAL FINISH
             var holesEntered = _context.Scores
                 .Where(s => s.TournamentId == tournamentId
                         && s.PlayerId == playerId
@@ -1478,7 +1478,7 @@ namespace FairwayManager.Controllers
                 AddActivity(tournamentId, $"{playerName} has finished round {roundNumber}");
             }
 
-            // 🔥 TEAM FINISH LOGIC (ADD THIS BELOW)
+            //  TEAM FINISH LOGIC (ADD THIS BELOW)
             var teamId = _context.PlayerTeams
                 .Where(pt => pt.PlayerId == playerId && pt.TournamentId == tournamentId)
                 .Select(pt => pt.TeamId)
@@ -1598,7 +1598,7 @@ namespace FairwayManager.Controllers
             .OrderByDescending(x => x.Date)
             .ToList();
 
-            // ✅ ONLY include tournaments where player actually has scores
+            //  ONLY include tournaments where player actually has scores
             var validHistory = history.Where(x => x.Total > 0).ToList();
 
             int tournamentsPlayed = validHistory.Count;

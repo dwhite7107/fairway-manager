@@ -5,7 +5,7 @@
     var hasLocation = ViewBag.HasLocation as bool?;
 }
 
-<!-- 🔥 HERO SECTION -->
+<!--  HERO SECTION -->
 <div class="hero">
     <div class="hero-overlay">
         <div class="hero-content text-center">
@@ -20,7 +20,7 @@
     </div>
 </div>
 
-<!-- 📍 LOCATION BAR -->
+<!-- LOCATION BAR -->
 @if (hasLocation == true)
 {
     <div class="location-bar text-center">
@@ -33,7 +33,7 @@
 
 <div class="container mt-5">
 
-    <!-- 🔥 UPCOMING -->
+    <!--  UPCOMING -->
     <h3 class="section-title">Upcoming Tournaments</h3>
 
     <div class="row">
@@ -79,7 +79,7 @@
 
   
 
-                            <!-- 🔥 BUTTON -->
+                            <!--  BUTTON -->
                             @if (status == "Completed")
                             {
                                 <a asp-controller="Tournament"
@@ -119,7 +119,7 @@
         }
     </div>
 
-    <!-- 🔥 RECENT -->
+    <!--  RECENT -->
     <h3 class="section-title mt-5">Recent Tournaments</h3>
 
     <div class="row">
@@ -164,7 +164,7 @@
 
                             
 
-                            <!-- 🔥 BUTTON -->
+                            <!--  BUTTON -->
                             <a asp-controller="Tournament"
                                asp-action="Details"
                                asp-route-id="@t.Id"

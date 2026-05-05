@@ -34,7 +34,7 @@ public class HomeController : Controller
         ViewBag.State = location.State;
         ViewBag.HasLocation = location.Lat != null;
 
-        // 🧪 Debug
+        //  Debug
         Console.WriteLine($"IP: {ip}");
         Console.WriteLine($"City: {location.City}, State: {location.State}");
 
@@ -83,7 +83,10 @@ public class HomeController : Controller
         return View();
     }
 
-    
+    // calculate the distance between two coordinates
+    // using latitude and longitude (basically how far two locations are)
+    // gotta convert everything to radians and use the haversine formula
+    // returns the distance in miles
     private double CalculateDistance(double lat1, double lon1, double lat2, double lon2)
     {
         var R = 3958.8; // miles
